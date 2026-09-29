@@ -53,6 +53,31 @@ Dazu Modifikatoren wie `offline`, `wackelnetz`, `hitze` (thermisches Drosseln w�
 Laufs), `ram-druck`, `volle-platte`, `dunkel`, `kontrast`, `rtl`, `pseudo-l10n`,
 `falsche-uhr`. Details in [09 Hardware-Profile](docs/09-hardware-profile.md).
 
+## Fremden Code sicher ausführen
+
+Crosscheck kann jeden PR automatisch prüfen, auch von völlig Fremden. Das geht nur, weil
+**jeder PR als feindlich gilt**, auch der eigene:
+
+- **Eine Isolation für alle.** Die Admin-Oberfläche legt fest, *wann* ein Lauf startet:
+  für alle, nach einem Approve am exakten Commit, nur für bestimmte Nutzer oder manuell.
+  Die Abschirmung ist dabei für jeden PR gleich stark und lässt sich nicht abschalten.
+- **Wegwerf-VMs ohne Ausweg.** Es gibt keine Schlüssel, kein Heimnetz, kein IPv6 und keine
+  Nachbar-VMs, nur einen Paket-Proxy mit Allow-List. Die Hardware ist minimal, QEMU ist
+  gehärtet und KSM ist aus. Empfohlen ist ein eigenes Gerät für den Controller, damit
+  selbst ein Ausbruch aus der VM nichts Wertvolles findet.
+- **Agenten ohne Macht.** Claude, Codex oder lokale Modelle bedienen die App nur über
+  Screenshot, Maus und Tastatur von außen. Coding-Agenten prüfen den Code in einer eigenen
+  Wegwerf-VM mit Einmal-Token statt API-Schlüssel. Den Status setzt immer der Controller.
+- **Messungen von außen.** Startzeit, Latenz, CPU und Netz misst der Host. Was die VM selbst
+  meldet, gilt als fälschbar.
+- **Nach dem Lauf ist alles weg.** Die VMs werden zerstört und die Platten per
+  Crypto-Shredding unlesbar gemacht. Netzregeln und Tokens werden entfernt. Ein
+  Aufräum-Dienst arbeitet auch nach einem Stromausfall. Das Löschprotokoll steht im Bericht.
+
+Details: [11 Admin](docs/11-admin-und-vertrauensrichtlinien.md),
+[12 Isolation und Löschung](docs/12-isolation-und-loeschung.md),
+[13 Agenten und Benchmarks](docs/13-agenten-und-benchmarks.md).
+
 ## Grundprinzipien
 
 1. **PR-Code ist feindlich.** Alles aus dem PR ist Daten, nie Anweisung. Es läuft nur in
@@ -82,12 +107,16 @@ Laufs), `ram-druck`, `volle-platte`, `dunkel`, `kontrast`, `rtl`, `pseudo-l10n`,
 | [08 Installation](docs/08-installation-zero-touch.md) | Zero-Touch-ISO, bestehender Proxmox, Solo-Modus, Versionskanäle |
 | [09 Hardware-Profile](docs/09-hardware-profile.md) | Throttling, Presets, Modifikatoren, Kalibrierung, Leistungsbudget, A/B |
 | [10 Feature-Katalog](docs/10-feature-katalog.md) | Alle geplanten Funktionen mit Phase und Kosten |
+| [11 Admin und Vertrauensrichtlinien](docs/11-admin-und-vertrauensrichtlinien.md) | Richtlinien-Modi, Vertrauensklassen, Grenzen, Admin-Oberfläche, Sicherheitsampel |
+| [12 Isolation und Löschung](docs/12-isolation-und-loeschung.md) | Topologie, sieben Schutzschichten, Crypto-Shredding, Löschprotokoll, Ausbruchstests |
+| [13 Agenten und Benchmarks](docs/13-agenten-und-benchmarks.md) | Claude, Claude Code, OpenAI, Codex, lokale Modelle, Zweitmeinung, host-seitige Messung |
 
 ## Dateien
 
 | Datei | Zweck |
 |-------|-------|
 | [`examples/crosscheck.yaml`](examples/crosscheck.yaml) | Prüfplan eines Repos mit fast allen Optionen |
+| [`examples/admin-policy.yaml`](examples/admin-policy.yaml) | Export einer Admin-Richtlinie: Topologie, Klassen, Grenzen, Aufbewahrung |
 | [`examples/mcp.json`](examples/mcp.json) | MCP-Konfiguration für Claude Code |
 | [`examples/report.example.json`](examples/report.example.json) | Beispielbericht |
 | [`schemas/report.schema.json`](schemas/report.schema.json) | Berichtsschema (JSON Schema 2020-12) |

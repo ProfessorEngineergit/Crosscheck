@@ -5,6 +5,7 @@
 | Ereignis | Wirkung |
 |----------|---------|
 | `pull_request` opened / synchronize / reopened | Stufe 0 immer. Stufe 1 nach Policy. Laufender Lauf desselben PRs wird abgebrochen. |
+| `pull_request_review` submitted, Zustand `approved` | Stufe 1, wenn die Richtlinie `approved` verlangt. Nur für den SHA, auf den sich das Approve bezieht |
 | `pull_request` labeled `crosscheck:run` | Stufe 1 für diesen PR, auch bei Fork/Erstbeitrag |
 | `pull_request` labeled `crosscheck:deep` | Stufe 2 (Security- und Vulnerability-Review) nach Stufe 1 |
 | `issue_comment` `/crosscheck run [--platforms …]` | Stufe 1, nur Maintainer |
@@ -17,7 +18,8 @@
 
 ## Stufe 0: Static
 
-Läuft im Controller in einem unprivilegierten Container ohne Secrets. Dauer: 1 bis 5 Minuten.
+Läuft in einer Wegwerf-Analyse-VM (optional Firecracker-microVM) ohne Secrets und ohne Netz.
+Die Scanner-Datenbanken kommen als read-only Datenträger mit. Dauer: 1 bis 5 Minuten.
 
 1. **Config-Diff:** Wurde `crosscheck.yaml` im PR geändert? Finding `config-change`.
 2. **Secret-Scan:** gitleaks über den Diff und, bei Erstbeitragenden, über den ganzen Baum.

@@ -12,7 +12,7 @@ Hand in einem Template geändert.
 | Linux Desktop (Ubuntu 24.04 LTS, Fedora) | Proxmox | KVM | Cloud-Image + Desktop-Pakete | frei | Xorg-Session (nicht Wayland), VNC über QEMU, Guest-Agent | niedrig |
 | Windows 10/11 | Proxmox | KVM + VirtIO | Evaluation-ISO (90 Tage, verlängerbar) oder eigene Lizenz | Eval oder gekauft | Autounattend.xml, Sysmon, OpenSSH für Guest-Files, VNC über QEMU | mittel |
 | Android | Proxmox (Nested-KVM) | KVM in KVM, Android-Emulator | AOSP-System-Images über SDK-Manager (gespiegelt) | frei | `adb`, Emulator-Konsole, Screenshot über `adb` oder Framebuffer | mittel |
-| Web (Chromium, Firefox, WebKit) | Proxmox | KVM oder Container | Linux-Image + Playwright-Browser | frei | Playwright direkt, kein Computer-Use nötig | niedrig |
+| Web (Chromium, Firefox, WebKit) | Proxmox | KVM (nie Container, auch nicht für Web) | Linux-Image + Playwright-Browser | frei | Playwright direkt, kein Computer-Use nötig | niedrig |
 | macOS | Apple-Hardware (Mac mini) | Tart oder UTM (Apple Virtualization) | IPSW von Apple | Apple-EULA: nur auf Apple-Hardware, max. 2 VMs pro Host | Screen Recording-Erlaubnis, `cliclick`/Accessibility, VNC | hoch |
 | iOS | Apple-Hardware, in der macOS-VM | Xcode iOS Simulator | Xcode | wie macOS | `xcrun simctl` (Install, Launch, Screenshot, Touch-Events über `simctl io`) | hoch |
 
@@ -79,10 +79,10 @@ Ansible-Rollen. Alte Templates bleiben zwei Wochen für Wiederholungsläufe.
 
 - Runner-Pool: eigener Ressourcen-Pool `crosscheck`, Storage mit Thin-Provisioning (LVM-thin
   oder ZFS) für schnelle Linked Clones.
-- Netz: Bridge `vmbr-crosscheck` ohne physisches Interface. Darauf: Paket-Proxy (LXC), sonst
+- Netz: Bridge `vmbr-crosscheck` ohne physisches Interface. Darauf: Paket-Proxy (eigene VM), sonst
   nur Runner. Der Controller hängt nicht an dieser Bridge; er erreicht die Runner
   ausschließlich über den Proxmox-Host (VNC-Socket, Guest-Agent-Socket).
-- CPU: `host`-Typ. Für den Android-Runner Nested-Virt aktiv (`kvm-intel.nested=1` bzw. AMD).
+- CPU: Typ laut Preset. Für den Android-Runner Nested-Virt aktiv (`kvm-intel.nested=1` bzw. AMD). Verschachtelte Virtualisierung vergrößert die Angriffsfläche des Host-Kernels. Für fremde PRs läuft Android deshalb nur auf einem Runner-Host ohne Controller (siehe [12](12-isolation-und-loeschung.md)).
 - Display: `std` oder `virtio-gpu`, VNC über den Proxmox-VNC-Proxy oder direkt QEMU
   (`-vnc unix:/run/crosscheck/<vmid>.sock`).
 - Grundgrößen der Templates, pro Lauf durch das Preset überschrieben (siehe [09](09-hardware-profile.md)): Linux 4 vCPU / 8 GB, Windows 4 vCPU / 8 GB, Android-Host 6 vCPU / 12 GB,

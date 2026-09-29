@@ -38,7 +38,8 @@ Ablauf ohne Eingriff:
    - aktiviert die No-Subscription-Paketquelle und spielt alle Updates ein,
    - prüft Hardware (VT-x/AMD-V, Nested-Virt, IOMMU, RAM, Kerne, GPU) und wählt den
      passenden Betriebsmodus (siehe [09 Hardware-Profile](09-hardware-profile.md)),
-   - legt Netz `vmbr-crosscheck` an, erzeugt die Controller-LXC und den Paket-Proxy,
+   - legt Netz `vmbr-crosscheck` an, schaltet KSM ab, erzeugt die Controller-VM (nur im
+     Einzelrechner-Modus) und die Paket-Proxy-VM,
    - startet den Template-Bau im Hintergrund, Linux zuerst, dann Web, dann Rest,
    - misst die Hostleistung für die Hardware-Kalibrierung,
    - zeigt auf der Konsole (und per HDMI) einen **QR-Code** und eine kurze URL.
@@ -58,6 +59,17 @@ Ablauf ohne Eingriff:
    claude mcp add --transport http crosscheck https://crosscheck.<tailnet>.ts.net/mcp \
      --header "Authorization: Bearer <token>"
    ```
+
+### Zwei Geräte statt einem
+
+Empfohlen, wenn jeder PR automatisch geprüft werden soll (siehe
+[12 Isolation](12-isolation-und-loeschung.md)):
+
+- **Runner-Host:** die ISO mit Bootmenü-Eintrag "Crosscheck Runner" (oder
+  `crosscheck build-iso --role runner`). Er zeigt nach dem Start nur einen Kopplungscode.
+- **Controller:** `crosscheck-solo up --role controller` auf einem Raspberry Pi 5, Mini-PC
+  oder einer kleinen Cloud-VM. Im Einrichtungsassistenten gibt man den Kopplungscode ein.
+  Der Controller erzeugt dann selbst den eingeschränkten Proxmox-API-Zugang auf dem Runner-Host.
 
 ## Weg B: Auf bestehendem Proxmox
 

@@ -8,12 +8,20 @@
   "level": "smoke",
   "trigger": "push",
   "requested_by": "github-app",
+  "trust_class": "fremd",
+  "policy_mode": "alle",
   "status": "failure",
   "started_at": "2026-09-29T09:12:03Z",
   "finished_at": "2026-09-29T09:24:41Z",
   "summary": {
     "headline": "Fehlgeschlagen: Windows Smoke-Schritt 4, AVX2-Absturz auf kartoffel (Linux)",
-    "counts": { "critical": 1, "high": 1, "medium": 1, "low": 0, "info": 2 }
+    "counts": {
+      "critical": 1,
+      "high": 1,
+      "medium": 1,
+      "low": 0,
+      "info": 2
+    }
   },
   "platforms": [
     {
@@ -22,12 +30,27 @@
       "os_version": "Ubuntu 26.04 LTS",
       "template_build_id": "linux-ubuntu-20260928-01",
       "preset": "kartoffel",
-      "calibration": { "target_single_thread_score": 300, "measured_single_thread_score": 311, "reached_percent": 103.7, "reliable": true },
+      "calibration": {
+        "target_single_thread_score": 300,
+        "measured_single_thread_score": 311,
+        "reached_percent": 103.7,
+        "reliable": true
+      },
       "status": "failure",
-      "build": { "ok": true, "duration_s": 212.4, "log": "l_a81" },
+      "build": {
+        "ok": true,
+        "duration_s": 212.4,
+        "log": "l_a81"
+      },
       "crashed": true,
       "steps": [
-        { "index": 0, "instruction": "Warte, bis das Hauptfenster vollständig geladen ist.", "result": "not_met", "observation": "Kein Fenster erschienen. Prozess nach 1,2 s beendet.", "screenshot_after": "s_101" }
+        {
+          "index": 0,
+          "instruction": "Warte, bis das Hauptfenster vollständig geladen ist.",
+          "result": "not_met",
+          "observation": "Kein Fenster erschienen. Prozess nach 1,2 s beendet.",
+          "screenshot_after": "s_101"
+        }
       ]
     },
     {
@@ -36,7 +59,11 @@
       "os_version": "Ubuntu 26.04 LTS",
       "preset": "mittel",
       "status": "success",
-      "build": { "ok": true, "duration_s": 88.0, "log": "l_a82" },
+      "build": {
+        "ok": true,
+        "duration_s": 88.0,
+        "log": "l_a82"
+      },
       "metrics": {
         "time_to_first_window_ms": 910,
         "time_to_interactive_ms": 1740,
@@ -46,10 +73,26 @@
         "memory_peak_mb": 412,
         "idle_cpu_percent": 0.8,
         "network_connections": 1,
-        "ab_delta": { "time_to_interactive_ms": 120, "memory_peak_mb": 14 }
+        "ab_delta": {
+          "time_to_interactive_ms": 120,
+          "memory_peak_mb": 14
+        }
       },
       "crashed": false,
-      "video": "v_c11"
+      "video": "v_c11",
+      "trust_downgrades": [
+        "gpu virgl -> software (Klasse fremd)"
+      ],
+      "metric_sources": {
+        "time_to_first_window_ms": "host",
+        "time_to_interactive_ms": "host",
+        "input_latency_p50_ms": "host",
+        "input_latency_p95_ms": "host",
+        "hangs_over_500ms": "host",
+        "memory_peak_mb": "guest",
+        "idle_cpu_percent": "host",
+        "network_connections": "host"
+      }
     },
     {
       "platform": "windows",
@@ -57,13 +100,27 @@
       "os_version": "Windows 11",
       "preset": "mittel",
       "status": "failure",
-      "build": { "ok": true, "duration_s": 140.2, "log": "l_b12" },
+      "build": {
+        "ok": true,
+        "duration_s": 140.2,
+        "log": "l_b12"
+      },
       "crashed": false,
       "steps": [
-        { "index": 3, "instruction": "Öffne die Einstellungen über das Zahnrad unten links.", "result": "not_met", "observation": "Das Zahnrad ist ausgegraut, ein Klick hat keine Wirkung.", "screenshot_before": "s_111", "screenshot_after": "s_112", "visual_diff": "d_112" }
+        {
+          "index": 3,
+          "instruction": "Öffne die Einstellungen über das Zahnrad unten links.",
+          "result": "not_met",
+          "observation": "Das Zahnrad ist ausgegraut, ein Klick hat keine Wirkung.",
+          "screenshot_before": "s_111",
+          "screenshot_after": "s_112",
+          "visual_diff": "d_112"
+        }
       ],
       "video": "v_c12",
-      "hold": { "active": false }
+      "hold": {
+        "active": false
+      }
     }
   ],
   "findings": [
@@ -73,11 +130,18 @@
       "severity": "critical",
       "confidence": 1.0,
       "source": "runtime",
-      "platforms": ["linux"],
-      "presets": ["kartoffel"],
+      "platforms": [
+        "linux"
+      ],
+      "presets": [
+        "kartoffel"
+      ],
       "title": "SIGILL beim Start auf CPUs ohne AVX2",
       "description": "Symbolisierter Stack zeigt den Absturz in einer nativen Abhängigkeit, die mit AVX2 gebaut ist. Auf x86-64-v3 und höher läuft die App.",
-      "evidence": ["l_a81", "s_101"],
+      "evidence": [
+        "l_a81",
+        "s_101"
+      ],
       "new_since_base": true
     },
     {
@@ -86,7 +150,10 @@
       "severity": "high",
       "confidence": 1.0,
       "source": "runtime",
-      "platforms": ["linux", "windows"],
+      "platforms": [
+        "linux",
+        "windows"
+      ],
       "title": "Neue Verbindung beim Start zu einem nicht erlaubten Host",
       "description": "Verbindungsversuch vom App-Prozess zu telemetry.example.net:443 beim Start, vom Proxy verworfen. In der Basis nicht vorhanden.",
       "new_since_base": true
@@ -96,10 +163,16 @@
       "category": "smoke-step",
       "severity": "medium",
       "confidence": 0.9,
-      "source": "vision-model",
-      "platforms": ["windows"],
+      "source": "vision-agent",
+      "platforms": [
+        "windows"
+      ],
       "title": "Einstellungen lassen sich nicht öffnen",
-      "evidence": ["s_111", "s_112", "d_112"],
+      "evidence": [
+        "s_111",
+        "s_112",
+        "d_112"
+      ],
       "new_since_base": true
     },
     {
@@ -127,6 +200,67 @@
     "controller_version": "0.1.0",
     "channel": "latest",
     "prompt_version": "vision-3",
-    "models": { "vision": "claude-sonnet-5-5" }
+    "models": {
+      "vision": "claude-sonnet-5-5"
+    },
+    "topology": "separate-device",
+    "agents": {
+      "smoke": "claude"
+    }
+  },
+  "deletion": {
+    "verified": true,
+    "completed_at": "2026-09-29T09:25:10Z",
+    "leftovers": 0,
+    "objects": [
+      {
+        "kind": "vm",
+        "ref": "9101",
+        "method": "destroy",
+        "deleted_at": "2026-09-29T09:24:58Z"
+      },
+      {
+        "kind": "overlay-key",
+        "ref": "9101",
+        "method": "crypto-shred",
+        "deleted_at": "2026-09-29T09:24:58Z"
+      },
+      {
+        "kind": "disk-overlay",
+        "ref": "9101",
+        "method": "discard",
+        "deleted_at": "2026-09-29T09:24:59Z"
+      },
+      {
+        "kind": "vm",
+        "ref": "9102",
+        "method": "destroy",
+        "deleted_at": "2026-09-29T09:25:01Z"
+      },
+      {
+        "kind": "overlay-key",
+        "ref": "9102",
+        "method": "crypto-shred",
+        "deleted_at": "2026-09-29T09:25:01Z"
+      },
+      {
+        "kind": "tap",
+        "ref": "tap9101i0",
+        "method": "destroy",
+        "deleted_at": "2026-09-29T09:25:02Z"
+      },
+      {
+        "kind": "proxy-token",
+        "ref": "t_7ka",
+        "method": "revoke",
+        "deleted_at": "2026-09-29T09:25:03Z"
+      },
+      {
+        "kind": "job-iso",
+        "ref": "r_9f3k2",
+        "method": "unlink",
+        "deleted_at": "2026-09-29T09:25:04Z"
+      }
+    ]
   }
 }

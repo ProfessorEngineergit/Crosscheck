@@ -4,6 +4,49 @@ Alle geplanten Funktionen auf einen Blick, gruppiert. Die Spalte **Phase** verwe
 [Roadmap](07-roadmap.md): 0 = MVP, 1 = Plattformen, 2 = Tiefe und Interaktion, 3 = Betrieb.
 **Kosten** heißt hier Modell-Budget: `–` braucht kein Modell, `$` wenig, `$$` spürbar.
 
+## Vertrauen und Administration
+
+| Feature | Beschreibung | Phase | Kosten |
+|---------|--------------|-------|--------|
+| Admin-Oberfläche | Richtlinien, Nutzer, Topologie, Agenten, Aufbewahrung, Audit-Log, Notaus. Siehe [11](11-admin-und-vertrauensrichtlinien.md) | 0 | – |
+| Richtlinien-Modi | `alle`, `approved`, `klassen`, `manuell` pro Repo und Stufe | 0 | – |
+| Approve am exakten SHA | Neuer Push braucht neues Approve, Prüfung direkt vor VM-Start | 0 | – |
+| Vertrauensklassen | maintainer, vertraut, bekannt, fremd, bot, gesperrt, live über die API bestimmt | 0 | – |
+| Grenzen pro Klasse | Plattformen, Presets, Laufzeit, Parallelität, Hold, GPU, Egress-Beobachtung | 1 | – |
+| Sicherheitsampel | Bewertet Richtlinie plus Topologie und pausiert Smoke für Fremde bei Rot | 1 | – |
+| Vorschau "Was passiert bei PR #N?" | Zeigt Klasse, Modus, Grenzen, bevor etwas läuft | 1 | – |
+| Notaus | Ein Knopf stoppt alles und zerstört alle Runner-VMs | 0 | – |
+
+## Isolation und Löschung
+
+| Feature | Beschreibung | Phase | Kosten |
+|---------|--------------|-------|--------|
+| Zwei-Geräte-Topologie | Controller getrennt vom Runner-Host, Kopplung per Code. Siehe [12](12-isolation-und-loeschung.md) | 0 | – |
+| Gehärtetes QEMU | Minimale Geräte, seccomp, im Solo-Modus eigener Benutzer, Namespaces, Landlock | 0 | – |
+| Firecracker für Headless | Stufe 0, Builds und CLI-Benchmarks in microVMs mit Jailer | 2 | – |
+| Analyse- und Auswertungs-VMs | Scanner und Parser für Rückgaben laufen nie auf dem Controller | 0 | – |
+| Netz-Härtung | Eigenes VLAN, Port-Isolation, `macfilter`/`ipfilter`, kein IPv6, DNS nur über Proxy | 0 | – |
+| KSM aus, optional SMT aus | Gegen Seitenkanäle zwischen VMs | 0 | – |
+| Schlüssel-Proxy mit Einmal-Token | Agenten in VMs sehen nie echte API-Schlüssel, hartes Budget pro Lauf | 1 | – |
+| Crypto-Shredding | Verschlüsseltes Overlay pro Lauf, Schlüssel nur im RAM | 1 | – |
+| Löschprotokoll | Aktiv geprüft, im Bericht, Reste werden Finding `cleanup` | 0 | – |
+| Aufräum-Dienst auf dem Runner-Host | Räumt auch ohne Controller und nach Stromausfall auf | 0 | – |
+| Wegwerf-Runner-Host | Neuaufsetzen nach Plan oder nach jedem fremden Lauf | 2 | – |
+| Measured Boot | TPM-Nachweis, dass der Runner-Host unverändert gebootet hat | 3 | – |
+| Ausbruchstests | Regelmäßig aus einer echten Runner-VM, Ergebnis in der Ampel | 0 | – |
+
+## Agenten
+
+| Feature | Beschreibung | Phase | Kosten |
+|---------|--------------|-------|--------|
+| Austauschbare Adapter | Claude, Claude Code, OpenAI, Codex CLI, lokale Modelle, ohne Modell. Siehe [13](13-agenten-und-benchmarks.md) | 1 | je nach Adapter |
+| Bediener außerhalb der VM | Computer Use nur über Screenshot, Maus und Tastatur | 0 | $ |
+| Prüfer in Review-VM | Coding-Agenten headless mit Shell, aber in Wegwerf-VM ohne Schlüssel | 2 | $$ |
+| Zweitmeinung | Zwei Agenten prüfen unabhängig, Abgleich: bestätigt, einzeln, strittig | 2 | $$ |
+| Host-seitige Messung | Nur Host-Messwerte können den Status bestimmen, Gast-Werte sind als fälschbar markiert | 1 | – |
+| Verschränkte A/B-Benchmarks | Basis und PR abwechselnd, mit Kalibrierung vor jeder Runde | 2 | – |
+| Lokaler Betrieb | Offene Vision-Modelle auf eigener GPU, keine Daten nach außen | 2 | – |
+
 ## Einfachheit
 
 | Feature | Beschreibung | Phase | Kosten |
@@ -106,7 +149,7 @@ Alle geplanten Funktionen auf einen Blick, gruppiert. Die Spalte **Phase** verwe
 
 | Feature | Beschreibung | Phase | Kosten |
 |---------|--------------|-------|--------|
-| Wake-on-LAN | Proxmox-Host schläft, ein stromsparender Wächter (Raspberry Pi, Router-Skript oder die Controller-LXC auf einem anderen Gerät) weckt ihn bei neuem PR | 2 | – |
+| Wake-on-LAN | Proxmox-Host schläft, der Controller auf seinem eigenen stromsparenden Gerät (z. B. Raspberry Pi) weckt ihn bei neuem PR | 2 | – |
 | Energiesparplan | Nach 30 min ohne Lauf: Warm-Pool einfrieren, Host in Suspend | 2 | – |
 | Budget pro Repo und Monat | Für Modellkosten, mit Anzeige im Web-UI und in `crosscheck_list_runs` | 2 | – |
 | Kontingente pro Autor | Schützt vor Push-Fluten | 1 | – |

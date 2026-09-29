@@ -5,7 +5,7 @@
 ```mermaid
 flowchart LR
     GH[GitHub<br/>PR, Labels, Kommentare, Checks]
-    subgraph Trusted["Vertrauenszone 1: Controller (LXC/VM auf Proxmox)"]
+    subgraph Trusted["Vertrauenszone 1: Controller (eigenes Gerät oder VM)"]
         CTRL[crosscheck-controller<br/>Webhooks, Policy, Scheduler]
         STORE[(crosscheck-store<br/>Berichte, Screenshots, Videos)]
         BRIDGE[crosscheck-bridge<br/>MCP-Server, Web-UI, Webhooks]
@@ -39,8 +39,11 @@ Vier Komponenten laufen im vertrauenswürdigen Bereich, die Runner sind Wegwerfw
 
 ### crosscheck-controller
 
-Der einzige Teil, der Geheimnisse besitzt. Läuft als LXC-Container oder kleine VM auf dem
-Proxmox-Host. Aufgaben:
+Der einzige Teil, der Geheimnisse besitzt. Läuft empfohlen auf einem **eigenen Gerät**
+(Mini-PC, Raspberry Pi 5, kleine Cloud-VM), getrennt vom Runner-Host. Auf einem
+Einzelrechner läuft er als VM auf demselben Proxmox; die Admin-Oberfläche zeigt das als
+gelbe Ampel. Begründung und Härtung stehen in [12 Isolation](12-isolation-und-loeschung.md).
+Aufgaben:
 
 - **GitHub-App.** Empfängt Webhooks (`pull_request`, `issue_comment`, `pull_request_review`),
   schreibt Check-Runs und Kommentare. Berechtigungen minimal: `contents:read`,
@@ -58,11 +61,13 @@ Proxmox-Host. Aufgaben:
 - **Runner-Lifecycle.** Spricht die Proxmox-API (`/api2/json`): Linked Clone vom Template,
   Cloud-Init oder Sysprep-Parameter setzen, Start, nach dem Lauf `destroy`. Für den Apple-Host
   spricht er eine kleine Agent-API (Tart/UTM) statt Proxmox.
-- **Artefakt-Transfer.** Übergibt den PR-Stand als Tarball und den Build-Auftrag in die VM
-  (über ein einmaliges ISO oder virtio-fs read-only). Holt Logs und Build-Artefakte per
+- **Artefakt-Transfer.** Holt den PR-Stand per GitHub-Tarball-API für einen festen SHA und
+  reicht ihn **ungeöffnet** zusammen mit dem Build-Auftrag als einmaliges ISO in die VM.
+  Kein `git clone` auf vertrauenswürdigen Systemen. Holt Logs und Build-Artefakte per
   QEMU-Guest-Agent (`guest-file-read`) zurück. Es gibt keine Netzwerkverbindung Runner → Controller.
-- **Analyse.** Führt Stufe 0 (Secret-Scan, SAST, Dependency-Audit) direkt aus, wertet
-  Runner-Ergebnisse aus, ruft für Stufe 2 das Modell auf, baut den Bericht nach Schema.
+- **Analyse.** Lässt Stufe 0 (Secret-Scan, SAST, Dependency-Audit) in einer eigenen
+  Analyse-VM laufen, weil auch Scanner feindliche Dateien parsen. Rückgaben aus VMs
+  parst eine Auswertungs-VM, der Controller sieht nur schema-geprüftes JSON. Er ruft für Stufe 2 das Modell auf, baut den Bericht nach Schema.
 
 ### crosscheck-vision
 
@@ -118,9 +123,10 @@ Die Schnittstelle nach außen. Details in [06 Chat-Bridge](06-chat-bridge.md).
 ## Datenfluss eines Laufs
 
 1. GitHub sendet `pull_request.synchronize` an den Controller.
-2. Policy-Engine lädt `crosscheck.yaml` vom Basis-Branch, prüft Autor, Labels, Budget.
-3. Stufe 0 läuft im Controller (in einem eigenen unprivilegierten Container, ebenfalls ohne
-   Secrets). Ergebnis geht als erster Check-Run an GitHub.
+2. Policy-Engine lädt `crosscheck.yaml` vom Basis-Branch, bestimmt die Vertrauensklasse
+   live über die GitHub-API, prüft Richtlinie aus der Admin-Oberfläche, Labels, Approve am
+   exakten SHA und Budget (siehe [11](11-admin-und-vertrauensrichtlinien.md)).
+3. Stufe 0 läuft in einer Wegwerf-Analyse-VM ohne Secrets und ohne Netz. Ergebnis geht als erster Check-Run an GitHub.
 4. Für jede konfigurierte Plattform: Linked Clone, Auftrag einspielen, VM starten.
 5. Build-Runner in der VM baut und startet die App, schreibt `status.json`.
 6. `crosscheck-vision` fährt das Smoke-Szenario, sammelt Screenshots und Schritte.
@@ -128,15 +134,18 @@ Die Schnittstelle nach außen. Details in [06 Chat-Bridge](06-chat-bridge.md).
 8. Falls angefordert: Stufe 2 mit Modellaufruf über Diff plus Beobachtungen.
 9. Bericht wird nach Schema erzeugt, im Store abgelegt, Check-Run aktualisiert, Kommentar
    geschrieben (nur bei Änderungen, nicht bei jedem Push).
-10. VM wird zerstört, außer ein `hold` wurde angefordert; dann läuft ein Timer (Standard
-    30 Minuten), danach Zerstörung.
+10. Alle VMs des Laufs werden zerstört und ihre Overlays per Crypto-Shredding unlesbar
+    gemacht, außer ein `hold` wurde angefordert. Dann läuft ein Timer (Standard 30 Minuten,
+    maximal 120), danach Zerstörung. Der Controller prüft die Löschung und schreibt ein
+    Löschprotokoll in den Bericht.
 11. Registrierte Webhooks werden ausgelöst.
 
 ## Hosting-Varianten
 
 | Variante | Controller | Runner | Anmerkung |
 |----------|-----------|--------|-----------|
-| Proxmox zu Hause (Zielbild) | LXC auf Proxmox | VMs auf demselben Host, eigenes VLAN | Günstig, volle Kontrolle, braucht Nested-Virt für Android-Emulator |
+| Zwei Geräte zu Hause (empfohlen) | Mini-PC oder Raspberry Pi | Dedizierter Proxmox im eigenen VLAN | Ein Ausbruch bis auf den Runner-Host findet keine Schlüssel |
+| Einzelrechner | VM auf Proxmox | VMs auf demselben Host, eigenes VLAN | Günstig, aber gelbe Ampel bei `alle` |
 | Proxmox + Mac mini | wie oben | zusätzlich Tart/UTM-VMs auf dem Mac | Einzige legale Option für macOS/iOS |
 | Cloud-Host (Hetzner, OVH, dedizierter Server) | VM oder Container | Nested-KVM-VMs oder Firecracker | Für Windows-Lizenzen und Egress-Kontrolle selbst verantwortlich |
 | Hybrid | Cloud | zu Hause per WireGuard angebunden | Controller erreichbar, Runner bleiben hinter NAT |

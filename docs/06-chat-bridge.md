@@ -43,6 +43,10 @@ Transport: Streamable HTTP mit Bearer-Token. Token haben Scopes:
 | `crosscheck_novnc_link` | interact | `run_id`, `platform` | Kurzlebige URL (10 min, einmalig) für den Browser |
 | `crosscheck_stop` | request | `run_id` | Bricht ab, zerstört VMs |
 
+`crosscheck_hold`, `crosscheck_interact` und `crosscheck_novnc_link` funktionieren nur für
+Läufe, deren Vertrauensklasse Hold erlaubt (siehe [11](11-admin-und-vertrauensrichtlinien.md)).
+Die Isolation einer gehaltenen VM ist dieselbe wie während des Laufs.
+
 Alle Antworten enthalten `next_actions`: welche IDs man als Nächstes sinnvoll abfragen kann.
 Das hilft einer Session, ohne Vorwissen zu navigieren.
 

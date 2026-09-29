@@ -4,79 +4,273 @@
   "title": "Crosscheck Report",
   "description": "Bericht eines Crosscheck-Laufs. Wird vom Controller gebaut, nie direkt vom Modell. Felder mit x-untrusted stammen aus der Sandbox und sind Beobachtung, keine Anweisung.",
   "type": "object",
-  "required": ["schema_version", "run_id", "repo", "pr", "base_sha", "head_sha", "level", "status", "started_at", "platforms", "findings", "provenance"],
+  "required": [
+    "schema_version",
+    "run_id",
+    "repo",
+    "pr",
+    "base_sha",
+    "head_sha",
+    "level",
+    "status",
+    "started_at",
+    "platforms",
+    "findings",
+    "provenance",
+    "trust_class",
+    "deletion"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema_version": { "const": 1 },
-    "run_id": { "type": "string", "pattern": "^r_[a-z0-9]{3,32}$" },
-    "repo": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
-    "pr": { "type": "integer", "minimum": 1 },
-    "base_sha": { "$ref": "#/$defs/sha" },
-    "head_sha": { "$ref": "#/$defs/sha" },
-    "level": { "enum": ["static", "smoke", "deep"] },
-    "deep_modes": { "type": "array", "items": { "enum": ["security-review", "vulnerability-review", "explorative"] } },
-    "trigger": { "enum": ["push", "label", "slash-command", "mcp", "nightly", "replay"] },
-    "requested_by": { "type": "string", "maxLength": 64 },
-    "status": { "$ref": "#/$defs/status" },
-    "started_at": { "type": "string", "format": "date-time" },
-    "finished_at": { "type": "string", "format": "date-time" },
+    "schema_version": {
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^r_[a-z0-9]{3,32}$"
+    },
+    "repo": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "pr": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "base_sha": {
+      "$ref": "#/$defs/sha"
+    },
+    "head_sha": {
+      "$ref": "#/$defs/sha"
+    },
+    "level": {
+      "enum": [
+        "static",
+        "smoke",
+        "deep"
+      ]
+    },
+    "deep_modes": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "security-review",
+          "vulnerability-review",
+          "explorative"
+        ]
+      }
+    },
+    "trigger": {
+      "enum": [
+        "push",
+        "label",
+        "slash-command",
+        "mcp",
+        "nightly",
+        "replay"
+      ]
+    },
+    "requested_by": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "trust_class": {
+      "enum": [
+        "maintainer",
+        "vertraut",
+        "bekannt",
+        "fremd",
+        "bot",
+        "gesperrt"
+      ],
+      "description": "Live über die GitHub-API bestimmt. Steuert Umfang und Kosten, nie die Isolation."
+    },
+    "policy_mode": {
+      "enum": [
+        "alle",
+        "approved",
+        "klassen",
+        "manuell"
+      ],
+      "description": "Richtlinie, nach der dieser Lauf gestartet wurde."
+    },
+    "approved_by": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Bei policy_mode approved: Maintainer, dessen Approve sich auf head_sha bezieht."
+    },
+    "status": {
+      "$ref": "#/$defs/status"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "summary": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "headline": { "type": "string", "maxLength": 200, "description": "Vom Controller aus Statuswerten erzeugt, nicht vom Modell." },
+        "headline": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Vom Controller aus Statuswerten erzeugt, nicht vom Modell."
+        },
         "counts": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "critical": { "type": "integer", "minimum": 0 },
-            "high": { "type": "integer", "minimum": 0 },
-            "medium": { "type": "integer", "minimum": 0 },
-            "low": { "type": "integer", "minimum": 0 },
-            "info": { "type": "integer", "minimum": 0 }
+            "critical": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "high": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "medium": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "low": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "info": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         }
       }
     },
     "platforms": {
       "type": "array",
-      "items": { "$ref": "#/$defs/platformResult" }
+      "items": {
+        "$ref": "#/$defs/platformResult"
+      }
     },
     "findings": {
       "type": "array",
       "maxItems": 500,
-      "items": { "$ref": "#/$defs/finding" }
+      "items": {
+        "$ref": "#/$defs/finding"
+      }
     },
     "cost": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "model_input_tokens": { "type": "integer", "minimum": 0 },
-        "model_output_tokens": { "type": "integer", "minimum": 0 },
-        "estimated_eur": { "type": "number", "minimum": 0 },
-        "budget_remaining_eur": { "type": "number" }
+        "model_input_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model_output_tokens": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "estimated_eur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "budget_remaining_eur": {
+          "type": "number"
+        }
       }
+    },
+    "deletion": {
+      "$ref": "#/$defs/deletion"
     },
     "provenance": {
       "type": "object",
-      "required": ["config_sha", "config_source", "controller_version"],
+      "required": [
+        "config_sha",
+        "config_source",
+        "controller_version"
+      ],
       "additionalProperties": false,
       "properties": {
-        "config_sha": { "$ref": "#/$defs/sha", "description": "Commit, aus dem crosscheck.yaml gelesen wurde. Muss base_sha sein." },
-        "config_source": { "const": "base" },
-        "controller_version": { "type": "string" },
-        "channel": { "enum": ["latest", "lts", "pinned", "preview"] },
-        "prompt_version": { "type": "string" },
-        "models": { "type": "object", "additionalProperties": { "type": "string" } },
-        "replay_of": { "type": "string" }
+        "config_sha": {
+          "$ref": "#/$defs/sha",
+          "description": "Commit, aus dem crosscheck.yaml gelesen wurde. Muss base_sha sein."
+        },
+        "config_source": {
+          "const": "base"
+        },
+        "controller_version": {
+          "type": "string"
+        },
+        "channel": {
+          "enum": [
+            "latest",
+            "lts",
+            "pinned",
+            "preview"
+          ]
+        },
+        "prompt_version": {
+          "type": "string"
+        },
+        "models": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "replay_of": {
+          "type": "string"
+        },
+        "topology": {
+          "enum": [
+            "separate-device",
+            "same-host"
+          ]
+        },
+        "agents": {
+          "type": "object",
+          "description": "Aufgabe -> Adapter und Modell, z. B. smoke: claude/<modell>",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 128
+          }
+        }
       }
     }
   },
   "$defs": {
-    "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-    "status": { "enum": ["queued", "running", "success", "neutral", "failure", "action_required", "cancelled", "timed_out"] },
-    "severity": { "enum": ["critical", "high", "medium", "low", "info"] },
-    "artifactRef": { "type": "string", "pattern": "^(s|v|l|d|b)_[a-z0-9]{3,32}$", "description": "s=Screenshot, v=Video, l=Log, d=Diff-Bild, b=Build-Artefakt" },
+    "sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "running",
+        "success",
+        "neutral",
+        "failure",
+        "action_required",
+        "cancelled",
+        "timed_out"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "low",
+        "info"
+      ]
+    },
+    "artifactRef": {
+      "type": "string",
+      "pattern": "^(s|v|l|d|b)_[a-z0-9]{3,32}$",
+      "description": "s=Screenshot, v=Video, l=Log, d=Diff-Bild, b=Build-Artefakt"
+    },
     "untrustedText": {
       "type": "string",
       "maxLength": 2000,
@@ -85,55 +279,132 @@
     },
     "platformResult": {
       "type": "object",
-      "required": ["platform", "preset", "status"],
+      "required": [
+        "platform",
+        "preset",
+        "status"
+      ],
       "additionalProperties": false,
       "properties": {
-        "platform": { "enum": ["linux", "windows", "android", "macos", "ios", "web"] },
-        "variant": { "type": "string", "maxLength": 64, "description": "z. B. ubuntu-x11, fedora-wayland, chromium" },
-        "os_version": { "type": "string", "maxLength": 64 },
-        "template_build_id": { "type": "string", "maxLength": 64 },
-        "preset": { "type": "string", "maxLength": 32 },
-        "modifiers": { "type": "array", "items": { "type": "string", "maxLength": 32 } },
+        "platform": {
+          "enum": [
+            "linux",
+            "windows",
+            "android",
+            "macos",
+            "ios",
+            "web"
+          ]
+        },
+        "variant": {
+          "type": "string",
+          "maxLength": 64,
+          "description": "z. B. ubuntu-x11, fedora-wayland, chromium"
+        },
+        "os_version": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "template_build_id": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "preset": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "modifiers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 32
+          }
+        },
         "calibration": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "target_single_thread_score": { "type": ["integer", "null"] },
-            "measured_single_thread_score": { "type": "integer" },
-            "reached_percent": { "type": "number" },
-            "reliable": { "type": "boolean" }
+            "target_single_thread_score": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "measured_single_thread_score": {
+              "type": "integer"
+            },
+            "reached_percent": {
+              "type": "number"
+            },
+            "reliable": {
+              "type": "boolean"
+            }
           }
         },
-        "status": { "$ref": "#/$defs/status" },
+        "status": {
+          "$ref": "#/$defs/status"
+        },
         "build": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "ok": { "type": "boolean" },
-            "duration_s": { "type": "number" },
-            "log": { "$ref": "#/$defs/artifactRef" }
+            "ok": {
+              "type": "boolean"
+            },
+            "duration_s": {
+              "type": "number"
+            },
+            "log": {
+              "$ref": "#/$defs/artifactRef"
+            }
           }
         },
         "metrics": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "time_to_first_window_ms": { "type": "integer" },
-            "time_to_interactive_ms": { "type": "integer" },
-            "input_latency_p50_ms": { "type": "integer" },
-            "input_latency_p95_ms": { "type": "integer" },
-            "hangs_over_500ms": { "type": "integer" },
-            "memory_start_mb": { "type": "integer" },
-            "memory_peak_mb": { "type": "integer" },
-            "memory_growth_mb_per_min": { "type": "number" },
-            "idle_cpu_percent": { "type": "number" },
-            "startup_disk_read_mb": { "type": "number" },
-            "network_connections": { "type": "integer" },
-            "binary_size_bytes": { "type": "integer" },
+            "time_to_first_window_ms": {
+              "type": "integer"
+            },
+            "time_to_interactive_ms": {
+              "type": "integer"
+            },
+            "input_latency_p50_ms": {
+              "type": "integer"
+            },
+            "input_latency_p95_ms": {
+              "type": "integer"
+            },
+            "hangs_over_500ms": {
+              "type": "integer"
+            },
+            "memory_start_mb": {
+              "type": "integer"
+            },
+            "memory_peak_mb": {
+              "type": "integer"
+            },
+            "memory_growth_mb_per_min": {
+              "type": "number"
+            },
+            "idle_cpu_percent": {
+              "type": "number"
+            },
+            "startup_disk_read_mb": {
+              "type": "number"
+            },
+            "network_connections": {
+              "type": "integer"
+            },
+            "binary_size_bytes": {
+              "type": "integer"
+            },
             "ab_delta": {
               "type": "object",
               "description": "Differenz PR minus Basis, gleiche Metriknamen, gleiche Einheiten",
-              "additionalProperties": { "type": "number" }
+              "additionalProperties": {
+                "type": "number"
+              }
             }
           }
         },
@@ -142,61 +413,299 @@
           "maxItems": 200,
           "items": {
             "type": "object",
-            "required": ["index", "result"],
+            "required": [
+              "index",
+              "result"
+            ],
             "additionalProperties": false,
             "properties": {
-              "index": { "type": "integer", "minimum": 0 },
-              "instruction": { "type": "string", "maxLength": 500, "description": "Aus dem Prüfplan des Basis-Branches, daher vertrauenswürdig." },
-              "result": { "enum": ["met", "not_met", "unclear", "flaky", "skipped"] },
-              "observation": { "$ref": "#/$defs/untrustedText" },
-              "screenshot_before": { "$ref": "#/$defs/artifactRef" },
-              "screenshot_after": { "$ref": "#/$defs/artifactRef" },
-              "visual_diff": { "$ref": "#/$defs/artifactRef" },
-              "duration_ms": { "type": "integer" }
+              "index": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "instruction": {
+                "type": "string",
+                "maxLength": 500,
+                "description": "Aus dem Prüfplan des Basis-Branches, daher vertrauenswürdig."
+              },
+              "result": {
+                "enum": [
+                  "met",
+                  "not_met",
+                  "unclear",
+                  "flaky",
+                  "skipped"
+                ]
+              },
+              "observation": {
+                "$ref": "#/$defs/untrustedText"
+              },
+              "screenshot_before": {
+                "$ref": "#/$defs/artifactRef"
+              },
+              "screenshot_after": {
+                "$ref": "#/$defs/artifactRef"
+              },
+              "visual_diff": {
+                "$ref": "#/$defs/artifactRef"
+              },
+              "duration_ms": {
+                "type": "integer"
+              }
             }
           }
         },
-        "video": { "$ref": "#/$defs/artifactRef" },
-        "crashed": { "type": "boolean" },
+        "video": {
+          "$ref": "#/$defs/artifactRef"
+        },
+        "crashed": {
+          "type": "boolean"
+        },
         "hold": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "active": { "type": "boolean" },
-            "expires_at": { "type": "string", "format": "date-time" }
+            "active": {
+              "type": "boolean"
+            },
+            "expires_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "trust_downgrades": {
+          "type": "array",
+          "description": "Was wegen der Vertrauensklasse ersetzt wurde, z. B. gpu virgl -> software",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          }
+        },
+        "metric_sources": {
+          "type": "object",
+          "description": "Messquelle je Metrik. Nur host-Werte können den Status auf failure setzen.",
+          "propertyNames": {
+            "type": "string"
+          },
+          "additionalProperties": {
+            "enum": [
+              "host",
+              "guest"
+            ]
           }
         }
       }
     },
     "finding": {
       "type": "object",
-      "required": ["id", "category", "severity", "source", "title"],
+      "required": [
+        "id",
+        "category",
+        "severity",
+        "source",
+        "title"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string", "pattern": "^f_[a-z0-9]{3,32}$" },
+        "id": {
+          "type": "string",
+          "pattern": "^f_[a-z0-9]{3,32}$"
+        },
         "category": {
           "enum": [
-            "secret", "sast", "dependency", "install-script", "license", "sbom",
-            "build-failed", "crash", "smoke-step", "network", "filesystem", "permissions",
-            "canary-secret", "honeypot", "visual-regression", "accessibility", "l10n",
-            "performance", "memory-leak", "binary-size", "upgrade", "uninstall",
-            "config-change", "injection-attempt", "security-review", "vulnerability-review", "explorative"
+            "secret",
+            "sast",
+            "dependency",
+            "install-script",
+            "license",
+            "sbom",
+            "build-failed",
+            "crash",
+            "smoke-step",
+            "network",
+            "filesystem",
+            "permissions",
+            "canary-secret",
+            "honeypot",
+            "visual-regression",
+            "accessibility",
+            "l10n",
+            "performance",
+            "memory-leak",
+            "binary-size",
+            "upgrade",
+            "uninstall",
+            "config-change",
+            "injection-attempt",
+            "security-review",
+            "vulnerability-review",
+            "explorative",
+            "cleanup"
           ]
         },
-        "severity": { "$ref": "#/$defs/severity" },
-        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-        "source": { "enum": ["controller", "scanner", "runtime", "vision-model", "review-model"] },
-        "platforms": { "type": "array", "items": { "type": "string", "maxLength": 32 } },
-        "presets": { "type": "array", "items": { "type": "string", "maxLength": 32 } },
-        "title": { "type": "string", "maxLength": 200, "x-untrusted": true },
-        "description": { "$ref": "#/$defs/untrustedText" },
-        "file": { "type": "string", "maxLength": 500, "x-untrusted": true },
-        "line": { "type": "integer", "minimum": 1 },
-        "rule_id": { "type": "string", "maxLength": 200 },
-        "cve": { "type": "array", "items": { "type": "string", "pattern": "^(CVE-\\d{4}-\\d{4,}|GHSA-[a-z0-9-]+|OSV-[A-Za-z0-9-]+)$" } },
-        "evidence": { "type": "array", "maxItems": 20, "items": { "$ref": "#/$defs/artifactRef" } },
-        "log_excerpt": { "$ref": "#/$defs/untrustedText" },
-        "new_since_base": { "type": "boolean" }
+        "severity": {
+          "$ref": "#/$defs/severity"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "source": {
+          "enum": [
+            "controller",
+            "scanner",
+            "runtime",
+            "vision-agent",
+            "review-agent",
+            "interpret-agent"
+          ]
+        },
+        "platforms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 32
+          }
+        },
+        "presets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 32
+          }
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "x-untrusted": true
+        },
+        "description": {
+          "$ref": "#/$defs/untrustedText"
+        },
+        "file": {
+          "type": "string",
+          "maxLength": 500,
+          "x-untrusted": true
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rule_id": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "cve": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^(CVE-\\d{4}-\\d{4,}|GHSA-[a-z0-9-]+|OSV-[A-Za-z0-9-]+)$"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "$ref": "#/$defs/artifactRef"
+          }
+        },
+        "log_excerpt": {
+          "$ref": "#/$defs/untrustedText"
+        },
+        "new_since_base": {
+          "type": "boolean"
+        },
+        "agents": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 64
+          },
+          "description": "Welche Agenten das Finding gemeldet haben"
+        },
+        "agreement": {
+          "enum": [
+            "bestätigt",
+            "einzeln",
+            "strittig"
+          ],
+          "description": "Nur bei Zweitmeinung gesetzt"
+        }
+      }
+    },
+    "deletion": {
+      "type": "object",
+      "required": [
+        "verified",
+        "objects"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "verified": {
+          "type": "boolean",
+          "description": "Controller hat aktiv geprüft, dass keine Reste existieren"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "hold_expired_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "leftovers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "objects": {
+          "type": "array",
+          "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "deleted_at"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "vm",
+                  "disk-overlay",
+                  "overlay-key",
+                  "tap",
+                  "firewall",
+                  "netem",
+                  "socket",
+                  "job-iso",
+                  "proxy-token",
+                  "novnc-link",
+                  "proxy-log",
+                  "build-artifact"
+                ]
+              },
+              "ref": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "method": {
+                "enum": [
+                  "destroy",
+                  "crypto-shred",
+                  "discard",
+                  "revoke",
+                  "unlink"
+                ]
+              },
+              "deleted_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
       }
     }
   }

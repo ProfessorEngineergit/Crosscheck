@@ -4,6 +4,10 @@
 # Referenz 1000 = Single-Thread-Leistung eines Desktop-Kerns der Mittelklasse von 2024.
 
 version: 1
+#
+# Sicherheit: gpu "virgl" und "passthrough" sowie verschachtelte Virtualisierung (Android)
+# sind an Vertrauensklassen gebunden (Admin-Oberfläche). Ist die Klasse nicht freigegeben,
+# fällt gpu automatisch auf "software" zurück und der Bericht vermerkt das.
 
 presets:
   kartoffel:

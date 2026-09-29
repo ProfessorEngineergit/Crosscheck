@@ -36,12 +36,14 @@ matrix:
     modifiers: [offline, hitze, dunkel, rtl, pseudo-l10n]
 
 trust:
-  # Wer bekommt automatisch Stufe 1? Andere nur mit Label crosscheck:run.
-  auto_smoke_for: [OWNER, MEMBER, COLLABORATOR]
-  slash_commands_for: [OWNER, MEMBER, COLLABORATOR]
+  # Die Admin-Oberfläche setzt die Obergrenze. Hier darf nur verschärft werden.
+  # Beispiel: Die Admin-Richtlinie erlaubt Smoke "alle", dieses Repo will für Bots nur Static.
+  smoke:
+    bot: manuell
+  slash_commands_for: [maintainer]
 
 egress:
-  mode: deny               # deny | observe  (observe: erlauben, aber alles melden)
+  mode: deny               # deny | observe  (observe nur für Klassen, die der Admin freigibt)
   allow:
     - registry.npmjs.org   # nur über den Paket-Proxy, nur beim Build
   allow_at_runtime: []     # die App selbst darf nirgendwohin
@@ -92,10 +94,15 @@ deep:
   # Stufe 2 läuft NIE automatisch. Nur Label crosscheck:deep oder Slash-Kommando.
   monthly_budget_eur: 15
   confirm_above_eur: 2
-  models:
-    vision: claude-sonnet-5-5
-    review: claude-opus-5-5
   explorative_steps: 40
+
+agents:
+  # Adapter: claude | claude-code | openai | codex | local | none
+  smoke:         { primary: claude, fallback: local }
+  explorative:   { primary: claude }
+  security:      { primary: claude-code, second_opinion: codex }
+  vulnerability: { primary: codex }
+  benchmark:     { primary: none, interpret: claude }
 
 notify:
   ntfy: { topic: "crosscheck-myapp", only_on_change: true }

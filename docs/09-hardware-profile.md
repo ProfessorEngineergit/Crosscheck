@@ -48,6 +48,11 @@ oder ergänzt werden.
 | `handy-billig` | Android-Einsteigergerät | 4 (Emulator) | 50 % | 2 GB | gedrosselt | Software | 720×1600, 320 dpi | 3G |
 | `handy-top` | Android-Flaggschiff / aktuelles iPhone | 8 | 100 % | 12 GB | ungedrosselt | Host-GPU | 1440×3120, 560 dpi | 5G: 20 ms, 300 Mbit |
 
+Grafikbeschleunigung (`virgl`, Passthrough) vergrößert die Angriffsfläche des Hosts. Für
+Vertrauensklassen ohne GPU-Freigabe (Standard: alle außer `maintainer`) ersetzt Crosscheck
+sie automatisch durch Software-Rendering und vermerkt das im Bericht. Siehe
+[12 Isolation](12-isolation-und-loeschung.md).
+
 Warum auch `unfassbar`? Schnelle Maschinen decken eigene Fehler auf: **Race Conditions**,
 die nur auftreten, wenn der Hintergrund-Thread schneller fertig ist als die UI, und
 **HiDPI-Fehler** auf 4K mit Skalierung und gemischten Monitoren.

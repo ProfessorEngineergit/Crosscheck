@@ -3,6 +3,7 @@
 | Datei | Zweck |
 |-------|-------|
 | [`crosscheck.yaml`](crosscheck.yaml) | Prüfplan für ein Repo, fast alle Optionen am Beispiel einer Electron-App |
+| [`admin-policy.yaml`](admin-policy.yaml) | Export der Admin-Richtlinie. Liegt auf dem Controller, nicht im Repo |
 | [`mcp.json`](mcp.json) | MCP-Konfiguration für Claude Code. Als `.mcp.json` ins Projekt legen, Token als Umgebungsvariable `CROSSCHECK_TOKEN` setzen (in Claude Code Cloud als Environment-Secret) |
 | [`report.example.json`](report.example.json) | Beispielbericht nach [`schemas/report.schema.json`](../schemas/report.schema.json) |
 
