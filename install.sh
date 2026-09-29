@@ -62,8 +62,11 @@ fi
 [ -e /dev/kvm ] || warn "/dev/kvm is missing: enable virtualisation (VT-x/AMD-V) in the firmware settings"
 
 log "starting guided setup"
-if [ -t 0 ] || [ ! -e /dev/tty ]; then
+# With `curl | bash`, stdin is the script itself: reattach the terminal if there is one.
+if [ -t 0 ]; then
   exec crosscheck init "$@"
-else
+elif (exec < /dev/tty) 2>/dev/null; then
   exec crosscheck init "$@" < /dev/tty
+else
+  exec crosscheck init "$@"
 fi

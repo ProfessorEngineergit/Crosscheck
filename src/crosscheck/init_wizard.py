@@ -430,6 +430,13 @@ def main(args) -> int:
         a.openai_key = Path(args.openai_key_file).read_text().strip()
     a.systemd = env["systemd"] and env["root"] and not args.no_systemd
     a.executor = "systemd" if a.systemd else "direct"
+    if not args.yes and not sys.stdin.isatty():
+        print(
+            "No terminal for questions. Run 'sudo crosscheck init' in a terminal, or pass --yes with flags "
+            "(for example --repo owner/name --github-token-file FILE).",
+            file=sys.stderr,
+        )
+        return 2
     if not args.yes:
         a = interactive(a, env)
     elif a.github_auth == "token" and not a.github_token and a.role != "runner":
