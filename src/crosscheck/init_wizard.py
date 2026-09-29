@@ -121,16 +121,17 @@ def run_manifest_flow(public_url: str | None, org: str | None = None, port: int 
             u = urllib.parse.urlsplit(self.path)
             q = urllib.parse.parse_qs(u.query)
             if u.path == f"/{state}":
-                page = (
-                    f"<!doctype html><meta charset=utf-8><title>Crosscheck setup</title>"
-                    f"<body style='font-family:sans-serif;max-width:40em;margin:3em auto'>"
-                    f"<h1>Create the Crosscheck GitHub App</h1><p>One click. GitHub shows you the "
-                    f"permissions before anything is created.</p>"
+                form = (
                     f"<form action='{target}?state={state}' method='post'>"
                     f"<input type='hidden' name='manifest' value='{_attr(json.dumps(manifest))}'>"
-                    f"<button style='font-size:1.3em;padding:.6em 1.2em'>Create GitHub App</button></form>"
+                    "<button class='cc-btn cc-btn--big cc-btn--block'>Create GitHub App</button></form>"
                 )
-                self._send(200, page)
+                intro = (
+                    "<p>One click. GitHub shows every permission before anything exists. We ask for the "
+                    "minimum: read code, write checks, statuses and PR comments. No admin rights, no secrets, "
+                    "no crypto mining.</p>"
+                )
+                self._send(200, setup_page("Create the Crosscheck GitHub App", intro + form))
             elif u.path == "/callback" and q.get("state", [""])[0] == state and q.get("code"):
                 try:
                     data = GitHub.convert_manifest(q["code"][0])
@@ -142,11 +143,15 @@ def run_manifest_flow(public_url: str | None, org: str | None = None, port: int 
                             "webhook_secret": data.get("webhook_secret"),
                         }
                     )
+                    link = _attr(f"https://github.com/apps/{data['slug']}/installations/new")
                     self._send(
                         200,
-                        f"<p>Done. Now install the app on your repositories: "
-                        f"<a href='https://github.com/apps/{data['slug']}/installations/new'>"
-                        f"install</a>. You can close this tab.</p>",
+                        setup_page(
+                            "App created",
+                            "<p>Last step: install it on the repositories Crosscheck should watch.</p>"
+                            f"<p><a class='cc-btn cc-btn--big' href='{link}'>Install on repositories →</a></p>"
+                            "<p class='cc-muted'>Then close this tab and head back to the terminal.</p>",
+                        ),
                     )
                 finally:
                     done.set()
@@ -169,6 +174,21 @@ def run_manifest_flow(public_url: str | None, org: str | None = None, port: int 
     if not result:
         raise RuntimeError("GitHub App was not created in time")
     return result
+
+
+def setup_page(title: str, body: str) -> str:
+    from .web.ui import STATIC
+
+    css = (STATIC / "crosscheck.css").read_text()
+    return (
+        "<!doctype html><html lang=en><head><meta charset=utf-8>"
+        "<meta name=viewport content='width=device-width, initial-scale=1'><title>Crosscheck setup</title>"
+        f"<style>{css}</style></head><body><div class='cc-wrap'><header class='cc-header'>"
+        "<span class='cc-logo'>crosscheck<b>/setup</b></span>"
+        "<span class='cc-tagline'>five questions, no boss fight</span>"
+        f"</header><section class='cc-card cc-card--hero cc-narrow'><h1 class='cc-h1'>{title}</h1>{body}"
+        "</section></div></body></html>"
+    )
 
 
 def _attr(value: str) -> str:
@@ -359,14 +379,16 @@ def fix_permissions(cfg_dir: Path, data_dir: Path) -> None:
 
 # ---------------------------------------------------------------------- interactive flow
 def interactive(a: Answers, env: dict) -> Answers:
-    print("Crosscheck setup. Press Enter to accept defaults.\n")
+    from .web.banner import banner
+
+    print(banner("setup, level 1: five questions, no boss fight. Enter accepts the default."))
     print("Detected: " + ", ".join(f"{k}={'yes' if v else 'no'}" for k, v in env.items()))
     a.role = choose(
         "\nWhat does this machine do?",
         [
-            ("single", "Everything on this machine (simplest)"),
-            ("controller", "Controller only; VMs run on a separate runner host (safest)"),
-            ("runner", "Runner host only; a controller elsewhere drives it"),
+            ("single", "Everything on this machine (simplest, the monorepo of setups)"),
+            ("controller", "Controller only; VMs live on a separate runner host (safest)"),
+            ("runner", "Runner host only (the muscle; a controller elsewhere is the brain)"),
         ],
         a.role,
     )
@@ -378,13 +400,13 @@ def interactive(a: Answers, env: dict) -> Answers:
     if a.role == "controller":
         a.runner_ssh_host = ask("Runner host name or address")
     while not a.repos:
-        raw = ask("Repositories to check (owner/name, comma separated)")
+        raw = ask("Which repositories should we be suspicious of? (owner/name, comma separated)")
         a.repos = [r.strip() for r in raw.split(",") if REPO_RE.match(r.strip())]
     a.github_auth = choose(
         "\nHow should Crosscheck talk to GitHub?",
         [
             ("app", "GitHub App, created with one click (checks, comments, webhooks)"),
-            ("token", "Fine-grained personal access token (statuses and comments)"),
+            ("token", "Fine-grained personal access token (the artisanal way)"),
         ],
         "app",
     )
@@ -393,17 +415,27 @@ def interactive(a: Answers, env: dict) -> Answers:
             "Token (Contents: read, Pull requests: read/write, Commit statuses: read/write)", secret=True
         )
     a.anthropic_key = (
-        ask("Anthropic API key for the operator agent (Enter to skip: no model, scripted checks only)", secret=True)
+        ask(
+            "Anthropic API key for the operator agent (Enter to skip: a script clicks around instead. "
+            "Less smart, never hallucinates)",
+            secret=True,
+        )
         or None
     )
-    a.public_url = ask("Public HTTPS URL of this controller for cloud agents and webhooks (Enter to skip)") or None
+    a.public_url = (
+        ask(
+            "Public HTTPS URL for cloud agents and webhooks, e.g. via Tailscale Funnel "
+            "(Enter to skip: LAN only, like it's 1999)"
+        )
+        or None
+    )
     if a.github_auth == "app":
         a.github_app = run_manifest_flow(a.public_url)
     a.smoke_mode = choose(
         "\nWhen should PRs be started in a VM automatically?",
         [
-            ("classes", "Maintainers and trusted users automatically, others after your approval"),
-            ("all", "Every PR, including forks (isolation is the same for everyone)"),
+            ("classes", "Maintainers and trusted friends automatically, strangers after your approval"),
+            ("all", "Every PR, even from strangers on the internet (same isolation, bigger power bill)"),
             ("approved", "Only after you approve the exact commit"),
             ("manual", "Only when asked (label, /crosscheck run, or your agent)"),
         ],
@@ -466,9 +498,11 @@ def main(args) -> int:
             fix_permissions(cfg_dir, data_dir)
         url = a.public_url or f"http://127.0.0.1:{cfg.mcp.port}"
         print("\n" + instructions(url, token))
+    print("\nSetup complete. Achievement unlocked: Sandbox Architect.\n")
     if a.role in ("single", "runner"):
-        print("Next: build the first VM image (10 to 40 minutes):  sudo crosscheck images build linux")
-        print("Then check everything:                            sudo crosscheck doctor --calibrate")
+        print("Next quest:  sudo crosscheck images build linux      (10 to 40 min, perfect for a coffee)")
+        print("Then:        sudo crosscheck doctor --calibrate      (how fast is this box, really?)")
+        print("Boss fight:  sudo crosscheck doctor --escape-test    (a VM tries to break out. Spoiler: it can't)")
     if a.role == "runner":
         print(
             "Allow the controller's key with a forced command (see docs/08-installation.md):\n"

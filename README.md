@@ -28,8 +28,10 @@ uvx --from git+https://github.com/ProfessorEngineergit/Crosscheck crosscheck dem
 ```
 
 This runs a complete check of a simulated app in a simulated VM, prints the report and the PR
-comment, and serves the MCP bridge on `http://127.0.0.1:8750`. It also prints the commands to
-connect Claude Code or Codex so you can ask your agent about the run.
+comment, and serves the dashboard and the MCP bridge on `http://127.0.0.1:8750`. It also prints the
+commands to connect Claude Code or Codex so you can ask your agent about the run.
+
+![Dashboard](docs/img/dashboard-run.png)
 Try `--scenario crash`, `build-fail`, `egress` or `canary` to see how problems are reported.
 
 ## Install
@@ -109,8 +111,10 @@ proxy, hardware presets and throttling, Claude computer-use operator, scripted o
 builder and schema, MCP bridge with scoped tokens, key proxy, deletion receipts, installer, init
 wizard, doctor, image builder, Claude Code plugin and Codex setup.
 
-Not yet: Windows, Android, macOS and iOS images, the zero-touch ISO, cloud burst, the web admin
-view, OpenAI and local-model operators. See [docs/07-roadmap.md](docs/07-roadmap.md).
+A read-only dashboard (runs, screenshots, findings, deletion receipts) is served by the controller.
+
+Not yet: Windows, Android, macOS and iOS images, the zero-touch ISO, cloud burst, admin actions in
+the dashboard (policy, tokens and the kill switch are CLI-only), OpenAI and local-model operators. See [docs/07-roadmap.md](docs/07-roadmap.md).
 The QEMU and Proxmox backends are unit-tested and the QEMU control path was exercised against a
 real QEMU; a full run with a desktop image needs a KVM host and has not been part of CI.
 
@@ -133,6 +137,7 @@ real QEMU; a full run with a desktop image needs a KVM host and has not been par
 | [13 Agents and benchmarks](docs/13-agents-and-benchmarks.md) | Operator, reviewers, host-side measurement |
 | [14 Simulating hardware you don't have](docs/14-simulating-hardware-you-dont-have.md) | Traits, extrapolation, races, cloud |
 | [15 Agent setup](docs/15-agent-setup.md) | Claude Code, cloud sessions, Codex |
+| [16 Design system](docs/16-design-system.md) | Neon terminal: tokens and components for the dashboard |
 
 ## Development
 

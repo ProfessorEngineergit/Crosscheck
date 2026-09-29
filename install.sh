@@ -20,7 +20,17 @@ log() { printf '\033[1m==>\033[0m %s\n' "$*"; }
 warn() { printf '\033[33mwarning:\033[0m %s\n' "$*" >&2; }
 die() { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
-[ "$(id -u)" -eq 0 ] || die "please run as root (sudo)"
+cat <<'BANNER'
+
+   ___                   _           _
+  / __|_ _ ___ ______ __| |_  ___ __| |__
+ | (__| '_/ _ (_-<_-</ _| ' \/ -_) _| / /
+  \___|_| \___/__/__/\__|_||_\___\__|_\_\
+  every PR is hostile until proven boring
+
+BANNER
+
+[ "$(id -u)" -eq 0 ] || die "please run as root (sudo). Yes, we checked. No, 'please' in the PR description won't help."
 [ "$(uname -s)" = "Linux" ] || die "Crosscheck runs on Linux"
 [ "$(uname -m)" = "x86_64" ] || warn "only x86_64 hosts are tested"
 [ -r /etc/os-release ] || die "cannot detect the distribution"
@@ -29,7 +39,7 @@ die() { printf '\033[31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 is_proxmox=0
 command -v pveversion >/dev/null 2>&1 && is_proxmox=1
 
-log "installing system packages"
+log "installing system packages (QEMU, Python, the usual suspects)"
 case " ${ID:-} ${ID_LIKE:-} " in
   *" debian "*|*" ubuntu "*)
     export DEBIAN_FRONTEND=noninteractive
@@ -55,13 +65,13 @@ python3 -m venv "$PREFIX"
 ln -sf "$PREFIX/bin/crosscheck" /usr/local/bin/crosscheck
 
 if [ -w /sys/kernel/mm/ksm/run ]; then
-  log "disabling KSM (memory deduplication is a side channel between VMs)"
+  log "disabling KSM: VMs don't get to gossip through shared memory pages"
   echo 2 > /sys/kernel/mm/ksm/run || true
   systemctl disable --now ksmtuned >/dev/null 2>&1 || true
 fi
-[ -e /dev/kvm ] || warn "/dev/kvm is missing: enable virtualisation (VT-x/AMD-V) in the firmware settings"
+[ -e /dev/kvm ] || warn "/dev/kvm is missing. Enable VT-x/AMD-V in the firmware settings, or enjoy 'crosscheck demo' meanwhile"
 
-log "starting guided setup"
+log "starting the guided setup. Grab a coffee, it has five questions."
 # With `curl | bash`, stdin is the script itself: reattach the terminal if there is one.
 if [ -t 0 ]; then
   exec crosscheck init "$@"

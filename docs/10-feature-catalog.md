@@ -14,7 +14,8 @@ Status: **built** (in 0.1, tested), **partial** (built, but not all of what the 
 | Zero-config: build and launch detection for Electron, Tauri, Flutter, Rust, CMake, Node, Python | built (Linux guest) |
 | `crosscheck doctor`, `--calibrate`, `--escape-test` | built |
 | Zero-touch runner ISO | planned |
-| Web admin view | planned (CLI covers policy, tokens, status, kill switch) |
+| Dashboard: runs, screenshots, findings, deletion receipts | built (read-only) |
+| Admin actions in the dashboard | planned (CLI covers policy, tokens, status, kill switch) |
 | Scenario recording from a hold session | planned |
 
 ## Platforms and images

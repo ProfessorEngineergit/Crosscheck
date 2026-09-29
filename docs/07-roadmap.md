@@ -21,12 +21,13 @@
 | Installer, `crosscheck init` (App manifest flow with QR code), systemd units, `doctor`, `images build` | done; wizard pieces tested, image build needs KVM |
 | Claude Code plugin (MCP, skill, commands), Codex setup, cloud-session settings | done |
 | `crosscheck demo` | done |
+| Dashboard (read-only: runs, screenshots, findings, deletion receipts) with the neon design system, strict CSP | done, tested |
 
 ## Next
 
 1. **Windows image** (autounattend, VirtIO, virtio-input driver, guest runner port to PowerShell or
    Python for Windows) and the web runner with Playwright.
-2. **Web admin view** on top of the existing CLI (`policy`, `token`, `kill`, `status`).
+2. **Admin actions in the dashboard** (policy, tokens, kill switch), today CLI-only.
 3. **Throttle-sweep extrapolation and race amplification** (docs/14), including interleaved A/B
    benchmarks against the base branch.
 4. **Android runner** (nested KVM, emulator, `adb`) and **Apple host** (Tart, Xcode Simulator).

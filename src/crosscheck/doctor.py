@@ -154,10 +154,20 @@ def controller_checks(cfg, store, gh) -> list[Check]:
 
 
 def format_checks(checks: list[Check]) -> str:
+    from .web.banner import AMBER, LIME, RED, c
+
     lines = []
-    for c in checks:
-        mark = {True: "ok  ", False: "FAIL", None: "warn"}[c.ok]
-        lines.append(f"[{mark}] {c.name}: {c.detail}")
+    for ch in checks:
+        mark = {True: c("[ok  ]", LIME), False: c("[FAIL]", RED), None: c("[warn]", AMBER)}[ch.ok]
+        lines.append(f"{mark} {ch.name}: {ch.detail}")
+    fails = sum(1 for ch in checks if ch.ok is False)
+    warns = sum(1 for ch in checks if ch.ok is None)
+    if fails:
+        lines.append(f"\n{fails} problem(s). Fix these before letting strangers' code in.")
+    elif warns:
+        lines.append(f"\nNo failures, {warns} warning(s). Solid, with room for healthy paranoia.")
+    else:
+        lines.append("\nAll green. Tighter than a TLS handshake.")
     return "\n".join(lines)
 
 

@@ -33,7 +33,7 @@ def mcp_url(base: str) -> str:
 
 def instructions(url: str, token: str) -> str:
     u = mcp_url(url)
-    return f"""Crosscheck is ready for your agents. The token below is shown only once.
+    return f"""Your agents can talk to Crosscheck now. The token below is shown exactly once, like a good secret.
 
   export {ENV_URL}={url.rstrip("/")}
   export {ENV_TOKEN}={token}

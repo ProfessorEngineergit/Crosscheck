@@ -48,9 +48,22 @@ def build_app(controller, store, keyproxy=None):
             log.warning("webhook handling failed: %s", exc)
         return JSONResponse({"ok": True})
 
-    if keyproxy is not None:
-        from starlette.routing import Route
+    from starlette.routing import Route
 
+    from .web.ui import Dashboard
+
+    dash = Dashboard(store)
+    server._custom_starlette_routes += [
+        Route("/", dash.index, methods=["GET"]),
+        Route("/login", dash.login_form, methods=["GET"]),
+        Route("/login", dash.login, methods=["POST"]),
+        Route("/logout", dash.logout, methods=["POST"]),
+        Route("/runs/{run_id}", dash.run, methods=["GET"]),
+        Route("/ui/artifact/{artifact_id}", dash.artifact, methods=["GET"]),
+        Route("/static/crosscheck.css", dash.css, methods=["GET"]),
+    ]
+
+    if keyproxy is not None:
         server._custom_starlette_routes.append(
             Route("/keyproxy/{token}/{provider}/{path:path}", keyproxy.handle, methods=["GET", "POST"])
         )

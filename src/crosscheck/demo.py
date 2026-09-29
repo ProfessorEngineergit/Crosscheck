@@ -168,6 +168,9 @@ def run_demo(port: int = 8750, serve: bool = True, scenario: str = "ok", root: P
     from .agent_setup import instructions
 
     root = root or Path(tempfile.mkdtemp(prefix="crosscheck-demo-"))
+    from .web.banner import banner
+
+    print(banner(f"demo mode: pretend VM, pretend PR, very real report (scenario: {scenario})"))
     cfg = demo_config(root, scenario)
     cfg.mcp.port = port
     gh = FakeGitHub()
@@ -182,7 +185,8 @@ def run_demo(port: int = 8750, serve: bool = True, scenario: str = "ok", root: P
     if serve:
         token = rt.store.create_token("demo", ["read", "artifacts", "request", "interact"], expires_days=1)
         print(instructions(f"http://127.0.0.1:{port}", token))
-        print(f"Serving the MCP bridge on http://127.0.0.1:{port}/mcp  (Ctrl+C to stop)")
+        print(f"Dashboard: http://127.0.0.1:{port}/  (log in with the token above)")
+        print(f"MCP:       http://127.0.0.1:{port}/mcp  (Ctrl+C to stop)")
         import threading
 
         import uvicorn
