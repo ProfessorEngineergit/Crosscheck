@@ -1,266 +1,167 @@
 {
   "schema_version": 1,
-  "run_id": "r_9f3k2",
-  "repo": "ProfessorEngineergit/myapp",
-  "pr": 42,
-  "base_sha": "1111111111111111111111111111111111111111",
-  "head_sha": "2222222222222222222222222222222222222222",
-  "level": "smoke",
+  "run_id": "r_3q4yzgqqu0",
+  "repo": "demo/fake-app",
+  "pr": 1,
+  "base_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "stage": "smoke",
   "trigger": "push",
-  "requested_by": "github-app",
-  "trust_class": "fremd",
-  "policy_mode": "alle",
+  "trust_class": "stranger",
   "status": "failure",
-  "started_at": "2026-09-29T09:12:03Z",
-  "finished_at": "2026-09-29T09:24:41Z",
-  "summary": {
-    "headline": "Fehlgeschlagen: Windows Smoke-Schritt 4, AVX2-Absturz auf kartoffel (Linux)",
-    "counts": {
-      "critical": 1,
-      "high": 1,
-      "medium": 1,
-      "low": 0,
-      "info": 2
-    }
-  },
+  "started_at": "2026-09-29T20:08:30Z",
   "platforms": [
     {
       "platform": "linux",
-      "variant": "ubuntu-x11",
-      "os_version": "Ubuntu 26.04 LTS",
-      "template_build_id": "linux-ubuntu-20260928-01",
-      "preset": "kartoffel",
+      "preset": "mainstream",
+      "status": "success",
+      "performance_basis": "measured",
+      "modifiers": [],
       "calibration": {
-        "target_single_thread_score": 300,
-        "measured_single_thread_score": 311,
-        "reached_percent": 103.7,
+        "target_score": 1000,
+        "measured_score": 1000,
+        "reached_percent": 100.0,
         "reliable": true
       },
-      "status": "failure",
-      "build": {
-        "ok": true,
-        "duration_s": 212.4,
-        "log": "l_a81"
-      },
-      "crashed": true,
       "steps": [
         {
           "index": 0,
-          "instruction": "Warte, bis das Hauptfenster vollständig geladen ist.",
-          "result": "not_met",
-          "observation": "Kein Fenster erschienen. Prozess nach 1,2 s beendet.",
-          "screenshot_after": "s_101"
+          "instruction": "Open the File menu.",
+          "result": "met",
+          "observation": "screen changed 1.5% after scripted actions",
+          "duration_ms": 599,
+          "screenshot_after": "s_lgu7jzzrb6bq",
+          "screenshot_before": "s_pxwp82at0u40"
+        },
+        {
+          "index": 1,
+          "instruction": "Choose Settings.",
+          "result": "met",
+          "observation": "screen changed 3.2% after scripted actions",
+          "duration_ms": 599,
+          "screenshot_after": "s_2syzzhkzampg",
+          "screenshot_before": "s_a61p7fd0hsu1"
+        },
+        {
+          "index": 2,
+          "instruction": "Close the dialog with Escape.",
+          "result": "met",
+          "observation": "screen changed 1.7% after scripted actions",
+          "duration_ms": 602,
+          "screenshot_after": "s_lx50pgu4e76o",
+          "screenshot_before": "s_o2c12zwpcaq8"
         }
-      ]
-    },
-    {
-      "platform": "linux",
-      "variant": "ubuntu-x11",
-      "os_version": "Ubuntu 26.04 LTS",
-      "preset": "mittel",
-      "status": "success",
+      ],
       "build": {
         "ok": true,
-        "duration_s": 88.0,
-        "log": "l_a82"
+        "log": "l_d1poz91dn99v"
       },
       "metrics": {
-        "time_to_first_window_ms": 910,
-        "time_to_interactive_ms": 1740,
+        "time_to_first_window_ms": 731,
+        "time_to_interactive_ms": 736,
         "input_latency_p50_ms": 38,
-        "input_latency_p95_ms": 96,
+        "input_latency_p95_ms": 38,
         "hangs_over_500ms": 0,
-        "memory_peak_mb": 412,
-        "idle_cpu_percent": 0.8,
-        "network_connections": 1,
-        "ab_delta": {
-          "time_to_interactive_ms": 120,
-          "memory_peak_mb": 14
-        }
+        "vm_cpu_seconds": 1.5,
+        "memory_peak_mb": 900,
+        "network_connections": 3
       },
-      "crashed": false,
-      "video": "v_c11",
-      "trust_downgrades": [
-        "gpu virgl -> software (Klasse fremd)"
-      ],
       "metric_sources": {
         "time_to_first_window_ms": "host",
         "time_to_interactive_ms": "host",
         "input_latency_p50_ms": "host",
         "input_latency_p95_ms": "host",
         "hangs_over_500ms": "host",
-        "memory_peak_mb": "guest",
-        "idle_cpu_percent": "host",
+        "vm_cpu_seconds": "host",
+        "memory_peak_mb": "host",
         "network_connections": "host"
-      }
-    },
-    {
-      "platform": "windows",
-      "variant": "windows-11",
-      "os_version": "Windows 11",
-      "preset": "mittel",
-      "status": "failure",
-      "build": {
-        "ok": true,
-        "duration_s": 140.2,
-        "log": "l_b12"
       },
-      "crashed": false,
-      "steps": [
-        {
-          "index": 3,
-          "instruction": "Öffne die Einstellungen über das Zahnrad unten links.",
-          "result": "not_met",
-          "observation": "Das Zahnrad ist ausgegraut, ein Klick hat keine Wirkung.",
-          "screenshot_before": "s_111",
-          "screenshot_after": "s_112",
-          "visual_diff": "d_112"
-        }
-      ],
-      "video": "v_c12",
-      "hold": {
-        "active": false
-      }
+      "crashed": false
     }
   ],
   "findings": [
     {
-      "id": "f_crash1",
-      "category": "crash",
-      "severity": "critical",
-      "confidence": 1.0,
+      "id": "f_2fkuth1dgv",
+      "category": "infrastructure",
+      "severity": "info",
+      "source": "controller",
+      "title": "Static scanners skipped: no analysis image on the runner host",
+      "description": "Run 'crosscheck images build analysis' to enable secret, SAST and dependency scanning."
+    },
+    {
+      "id": "f_7p5rwhoq7e",
+      "category": "network",
+      "severity": "high",
       "source": "runtime",
+      "title": "Blocked outbound connection attempts to 1 host(s)",
+      "description": "Hosts: evil.example.net",
       "platforms": [
         "linux"
       ],
       "presets": [
-        "kartoffel"
-      ],
-      "title": "SIGILL beim Start auf CPUs ohne AVX2",
-      "description": "Symbolisierter Stack zeigt den Absturz in einer nativen Abhängigkeit, die mit AVX2 gebaut ist. Auf x86-64-v3 und höher läuft die App.",
-      "evidence": [
-        "l_a81",
-        "s_101"
-      ],
-      "new_since_base": true
+        "mainstream"
+      ]
     },
     {
-      "id": "f_net1",
-      "category": "network",
+      "id": "f_x7fm4m5vh7",
+      "category": "honeypot",
       "severity": "high",
-      "confidence": 1.0,
       "source": "runtime",
+      "title": "The code tried to reach a cloud metadata endpoint",
       "platforms": [
-        "linux",
-        "windows"
+        "linux"
       ],
-      "title": "Neue Verbindung beim Start zu einem nicht erlaubten Host",
-      "description": "Verbindungsversuch vom App-Prozess zu telemetry.example.net:443 beim Start, vom Proxy verworfen. In der Basis nicht vorhanden.",
-      "new_since_base": true
-    },
-    {
-      "id": "f_step4",
-      "category": "smoke-step",
-      "severity": "medium",
-      "confidence": 0.9,
-      "source": "vision-agent",
-      "platforms": [
-        "windows"
-      ],
-      "title": "Einstellungen lassen sich nicht öffnen",
-      "evidence": [
-        "s_111",
-        "s_112",
-        "d_112"
-      ],
-      "new_since_base": true
-    },
-    {
-      "id": "f_dep1",
-      "category": "dependency",
-      "severity": "info",
-      "source": "scanner",
-      "title": "Neue Abhängigkeit mit Install-Script",
-      "description": "Paket führt beim Installieren ein postinstall-Script aus. Keine Netz- oder Dateizugriffe außerhalb von node_modules beobachtet.",
-      "file": "package-lock.json",
-      "new_since_base": true
-    },
-    {
-      "id": "f_size1",
-      "category": "binary-size",
-      "severity": "info",
-      "source": "controller",
-      "title": "Installer 6,1 % größer als auf main",
-      "new_since_base": true
+      "presets": [
+        "mainstream"
+      ]
     }
   ],
-  "provenance": {
-    "config_sha": "1111111111111111111111111111111111111111",
-    "config_source": "base",
-    "controller_version": "0.1.0",
-    "channel": "latest",
-    "prompt_version": "vision-3",
-    "models": {
-      "vision": "claude-sonnet-5-5"
-    },
-    "topology": "separate-device",
-    "agents": {
-      "smoke": "claude"
-    }
-  },
   "deletion": {
     "verified": true,
-    "completed_at": "2026-09-29T09:25:10Z",
+    "completed_at": "2026-09-29T20:08:35Z",
     "leftovers": 0,
     "objects": [
       {
         "kind": "vm",
-        "ref": "9101",
+        "ref": "v1251000",
         "method": "destroy",
-        "deleted_at": "2026-09-29T09:24:58Z"
-      },
-      {
-        "kind": "overlay-key",
-        "ref": "9101",
-        "method": "crypto-shred",
-        "deleted_at": "2026-09-29T09:24:58Z"
+        "deleted_at": "2026-09-29T20:08:35Z"
       },
       {
         "kind": "disk-overlay",
-        "ref": "9101",
-        "method": "discard",
-        "deleted_at": "2026-09-29T09:24:59Z"
-      },
-      {
-        "kind": "vm",
-        "ref": "9102",
-        "method": "destroy",
-        "deleted_at": "2026-09-29T09:25:01Z"
-      },
-      {
-        "kind": "overlay-key",
-        "ref": "9102",
+        "ref": "v1251000",
         "method": "crypto-shred",
-        "deleted_at": "2026-09-29T09:25:01Z"
+        "deleted_at": "2026-09-29T20:08:35Z"
       },
       {
-        "kind": "tap",
-        "ref": "tap9101i0",
-        "method": "destroy",
-        "deleted_at": "2026-09-29T09:25:02Z"
-      },
-      {
-        "kind": "proxy-token",
-        "ref": "t_7ka",
-        "method": "revoke",
-        "deleted_at": "2026-09-29T09:25:03Z"
-      },
-      {
-        "kind": "job-iso",
-        "ref": "r_9f3k2",
+        "kind": "run-dir",
+        "ref": "v1251000",
         "method": "unlink",
-        "deleted_at": "2026-09-29T09:25:04Z"
+        "deleted_at": "2026-09-29T20:08:35Z"
       }
     ]
+  },
+  "provenance": {
+    "config_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "config_source": "base",
+    "controller_version": "0.1.0",
+    "backend": "fake",
+    "topology": "single-machine",
+    "channel": "latest",
+    "agents": {
+      "smoke": "none"
+    }
+  },
+  "policy_mode": "all",
+  "finished_at": "2026-09-29T20:08:35Z",
+  "summary": {
+    "headline": "failure; 2 critical/high finding(s)",
+    "counts": {
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0,
+      "info": 1
+    }
   }
 }

@@ -1,38 +1,38 @@
-# Plattform- und Werkzeugversionen pro Kanal.
-# Der nächtliche Versions-Job prüft Upstream und öffnet bei Änderungen einen PR auf diese Datei.
-# Crosscheck prüft den PR selbst: neue Templates werden gebaut, gegen das Referenzprojekt
-# getestet und erst danach aktiv.
+# Platform and toolchain versions per channel.
+# A nightly job checks upstream and opens a PR on this file when something new appears.
+# Crosscheck checks that PR itself: new templates are built, tested against the reference
+# project, and only then activated.
 #
-# "auto" bedeutet: neueste stabile Version, die der Versions-Job gefunden hat.
-# Die tatsächlich verwendeten Werte stehen nach jedem Template-Bau in versions.lock.
-# Die Kommentare nennen den Stand bei Erstellung dieser Datei (2026-09) als Orientierung.
+# "auto" means: the newest stable version the version job found. The exact versions used
+# are written to versions.lock after every template build.
+# Comments name the state when this file was written (2026-09) for orientation only.
 
 channels:
   latest:
     host:
-      proxmox_ve: auto          # Proxmox VE 9.x auf Debian 13 "Trixie"
+      proxmox_ve: auto          # Proxmox VE 9.x on Debian 13
     linux:
-      ubuntu: auto              # neueste Ubuntu-Version, auch Nicht-LTS
+      ubuntu: auto              # newest Ubuntu release, including non-LTS
       fedora: auto
       debian: auto
       session: [x11, wayland]
     windows:
-      windows_11: auto          # neuestes Feature-Update, Evaluation-ISO oder eigene Lizenz
+      windows_11: auto          # newest feature update, evaluation ISO or own licence
     android:
-      api_level: auto           # höchste stabile API-Stufe im SDK
+      api_level: auto           # highest stable API level in the SDK
       system_image: google_apis_playstore
     apple:
-      macos: auto               # neueste stabile macOS-Version per IPSW
+      macos: auto
       xcode: auto
       ios_simulator_runtime: auto
     web:
-      playwright: auto          # bringt Chromium, Firefox, WebKit in passenden Versionen mit
+      playwright: auto          # ships matching Chromium, Firefox, WebKit
     toolchains:
-      node: current             # aktuelle "Current"-Linie
+      node: current
       python: auto
       rust: stable
       dotnet: auto
-      jdk: auto                 # neueste LTS
+      jdk: auto                 # newest LTS
       flutter: stable
       go: auto
 

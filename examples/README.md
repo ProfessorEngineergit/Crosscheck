@@ -1,12 +1,12 @@
-# Beispiele
+# Examples
 
-| Datei | Zweck |
-|-------|-------|
-| [`crosscheck.yaml`](crosscheck.yaml) | Prüfplan für ein Repo, fast alle Optionen am Beispiel einer Electron-App |
-| [`admin-policy.yaml`](admin-policy.yaml) | Export der Admin-Richtlinie. Liegt auf dem Controller, nicht im Repo |
-| [`mcp.json`](mcp.json) | MCP-Konfiguration für Claude Code. Als `.mcp.json` ins Projekt legen, Token als Umgebungsvariable `CROSSCHECK_TOKEN` setzen (in Claude Code Cloud als Environment-Secret) |
-| [`report.example.json`](report.example.json) | Beispielbericht nach [`schemas/report.schema.json`](../schemas/report.schema.json) |
+| File | Purpose |
+|------|---------|
+| [`crosscheck.yaml`](crosscheck.yaml) | Check plan in a repository (read from the base commit) |
+| [`controller.yaml`](controller.yaml) | Controller configuration and admin policy, as written by `crosscheck init` |
+| [`mcp.json`](mcp.json) | Project-level MCP configuration for Claude Code, reading `CROSSCHECK_URL` and `CROSSCHECK_TOKEN` from the environment |
+| [`report.example.json`](report.example.json) | A real report from `crosscheck demo --scenario egress`, valid against [`schemas/report.schema.json`](../schemas/report.schema.json) |
 
-Crosscheck braucht **keinen GitHub-Actions-Workflow**. Es arbeitet als GitHub-App mit
-Webhooks oder im Poll-Modus. Das ist Absicht: Ein Workflow mit `pull_request_target` wäre
-genau die Stelle, an der Fork-PRs an Secrets kommen können.
+Crosscheck needs **no GitHub Actions workflow** in the checked repository. It works as a GitHub App
+or with a token, by polling or webhooks. A workflow using `pull_request_target` is exactly where
+fork PRs could reach secrets, so Crosscheck avoids that design.

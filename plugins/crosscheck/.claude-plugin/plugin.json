@@ -1,0 +1,11 @@
+{
+  "name": "crosscheck",
+  "version": "0.1.0",
+  "description": "Read Crosscheck results (platforms, hardware presets, screenshots, findings) and request runs from Claude Code.",
+  "author": {
+    "name": "Crosscheck contributors"
+  },
+  "repository": "https://github.com/ProfessorEngineergit/Crosscheck",
+  "license": "GPL-3.0-only",
+  "keywords": ["pull-requests", "testing", "security", "virtual-machines", "mcp"]
+}

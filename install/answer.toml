@@ -1,18 +1,18 @@
-# Antwortdatei für den automatischen Proxmox-VE-Installer.
-# Wird von `proxmox-auto-install-assistant prepare-iso --fetch-from iso` in die ISO eingebettet.
-# Referenz: https://pve.proxmox.com/wiki/Automated_Installation
+# Answer file for the unattended Proxmox VE installer, used by the zero-touch runner ISO.
+# Embedded with: proxmox-auto-install-assistant prepare-iso --fetch-from iso --answer-file answer.toml
+# Reference: https://pve.proxmox.com/wiki/Automated_Installation
 #
-# ACHTUNG: Diese Datei installiert ohne Rückfrage und LÖSCHT die gewählte Platte.
-# Sie ist für einen dedizierten Crosscheck-Rechner gedacht.
+# WARNING: this installs without asking and ERASES the selected disk.
+# It is meant for a dedicated Crosscheck runner machine.
 
 [global]
-keyboard = "de"
-country = "de"
-fqdn = "crosscheck.local"
+keyboard = "en-us"
+country = "us"
+fqdn = "crosscheck-runner.local"
 mailto = "root@localhost"
-timezone = "Europe/Berlin"
-# Platzhalter-Hash. Der First-Boot-Schritt setzt ein Zufallspasswort und zeigt es
-# ausschließlich im Einrichtungsassistenten an (hinter dem Einmal-Token vom Bildschirm).
+timezone = "UTC"
+# Placeholder. The ISO build replaces it with a random password that is only shown once
+# after pairing with the controller.
 root-password-hashed = "$y$j9T$REPLACED.AT.ISO.BUILD.TIME"
 reboot-on-error = false
 
@@ -20,16 +20,15 @@ reboot-on-error = false
 source = "from-dhcp"
 
 [disk-setup]
-# Standard: ext4 mit LVM-thin auf genau einer Platte, damit Linked Clones schnell sind.
-# `crosscheck build-iso --disk-serial <serial>` ersetzt den Filter durch eine feste Seriennummer.
-# `crosscheck build-iso --zfs-mirror` wählt ZFS RAID1 über zwei gleich große Platten.
+# ext4 with LVM-thin on exactly one disk, so copy-on-write clones are fast.
+# `crosscheck images build-iso --disk-serial <serial>` replaces the filter with a fixed serial.
 filesystem = "ext4"
 filter.ID_TYPE = "disk"
 filter-match = "any"
-# Bei ext4 muss der Filter genau eine Platte treffen. Hat der Rechner mehrere Platten,
-# bricht der Installer ab, statt zu raten. Das ist gewollt.
+# With ext4 the filter must match exactly one disk. On a machine with several disks the
+# installer stops instead of guessing. That is intended.
 
 [first-boot]
-# crosscheck-firstboot: Updates, Netz, Controller-LXC, Proxy, Template-Bau, QR-Code.
+# crosscheck first boot: updates, KSM off, hostd, pairing code on screen.
 source = "from-iso"
 ordering = "fully-up"
