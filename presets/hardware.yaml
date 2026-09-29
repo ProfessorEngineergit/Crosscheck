@@ -1,0 +1,99 @@
+# Hardware-Presets für Crosscheck.
+# Leistungswerte sind Zielwerte des mitgelieferten Benchmarks (crosscheck-bench),
+# nicht Prozentwerte. Der Controller rechnet sie pro Host in cpulimit/cores um.
+# Referenz 1000 = Single-Thread-Leistung eines Desktop-Kerns der Mittelklasse von 2024.
+
+version: 1
+
+presets:
+  kartoffel:
+    beschreibung: "10 Jahre alter Laptop, Netbook"
+    cpu:
+      cores: 2
+      single_thread_score: 300
+      model: x86-64-v2-AES
+      flags: ["-avx2", "-avx512f", "-fma"]
+    memory_mb: 4096
+    swap_mb: 2048
+    disk: { mbps_rd: 80, mbps_wr: 60, iops_rd: 120, iops_wr: 100 }
+    gpu: software
+    display: { width: 1366, height: 768, scale: 100 }
+    network: 3g
+
+  schul-pc:
+    beschreibung: "Typischer Schul- oder Büro-PC"
+    cpu: { cores: 2, single_thread_score: 550, model: x86-64-v2-AES, flags: ["-avx512f"] }
+    memory_mb: 8192
+    disk: { mbps_rd: 400, mbps_wr: 300, iops_rd: 20000, iops_wr: 15000 }
+    gpu: software
+    display: { width: 1920, height: 1080, scale: 100 }
+    network: schul-wlan
+
+  mittel:
+    beschreibung: "Aktueller Mittelklasse-Laptop"
+    cpu: { cores: 4, single_thread_score: 1000, model: x86-64-v3 }
+    memory_mb: 16384
+    disk: { mbps_rd: 1500, mbps_wr: 1000 }
+    gpu: virgl
+    display: { width: 1920, height: 1080, scale: 125 }
+    network: dsl
+
+  gut:
+    beschreibung: "Aktueller guter Desktop"
+    cpu: { cores: 8, single_thread_score: 1400, model: host }
+    memory_mb: 32768
+    disk: unthrottled
+    gpu: [passthrough, virgl]   # erstes Verfügbares gewinnt
+    display: { width: 2560, height: 1440, scale: 125 }
+    network: glasfaser
+
+  unfassbar:
+    beschreibung: "Oberklasse-Workstation, deckt Races und HiDPI-Fehler auf"
+    cpu: { cores: max, single_thread_score: max, model: host }
+    memory_mb: max            # gedeckelt durch host.max_vm_memory_mb
+    disk: unthrottled
+    tmp_on_ramdisk: true
+    gpu: [passthrough, virgl]
+    display:
+      - { width: 3840, height: 2160, scale: 150 }
+      - { width: 1920, height: 1080, scale: 100 }
+    network: lan-10g
+
+  handy-billig:
+    plattform: [android]
+    beschreibung: "Android-Einsteigergerät"
+    emulator: { cores: 4, single_thread_score: 350, memory_mb: 2048, gpu: swiftshader }
+    display: { width: 720, height: 1600, dpi: 320 }
+    network: 3g
+
+  handy-top:
+    plattform: [android, ios]
+    beschreibung: "Aktuelles Flaggschiff"
+    emulator: { cores: 8, single_thread_score: max, memory_mb: 12288, gpu: host }
+    ios_device: "iPhone Pro Max (neueste)"
+    display: { width: 1440, height: 3120, dpi: 560 }
+    network: 5g
+
+networks:
+  # tc netem auf dem Tap-Interface des Hosts
+  offline:     { loss_percent: 100 }
+  3g:          { delay_ms: 300, jitter_ms: 100, rate_kbit: 1500, loss_percent: 2 }
+  schul-wlan:  { delay_ms: 40, jitter_ms: 30, rate_kbit: 15000, loss_percent: 1, reorder_percent: 1 }
+  dsl:         { delay_ms: 20, jitter_ms: 5, rate_kbit: 50000 }
+  5g:          { delay_ms: 20, jitter_ms: 10, rate_kbit: 300000 }
+  glasfaser:   { delay_ms: 5, rate_kbit: 500000 }
+  lan-10g:     {}
+
+modifikatoren:
+  offline:      { network: offline, ab: app_start }
+  wackelnetz:   { network_flap: { up_s: 20, down_s: 5 } }
+  hitze:        { cpu_schedule: [{ nach_s: 0, faktor: 1.0 }, { nach_s: 30, faktor: 0.4 }] }
+  ram-druck:    { balloon_fill_percent_of_free: 50, ab: app_start }
+  volle-platte: { free_disk_mb: 200 }
+  akku:         { power_profile: power-saver }
+  dunkel:       { theme: dark }
+  kontrast:     { high_contrast: true, font_scale: 150 }
+  rtl:          { locale: ar_EG.UTF-8 }
+  pseudo-l10n:  { locale: qps-ploc, text_expansion_percent: 40 }
+  falsche-uhr:  { clock_offset_days: -730 }
+  sommerzeit:   { timezone: Europe/Berlin, clock_set: "next_dst_change - 120s" }

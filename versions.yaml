@@ -1,0 +1,70 @@
+# Plattform- und Werkzeugversionen pro Kanal.
+# Der nächtliche Versions-Job prüft Upstream und öffnet bei Änderungen einen PR auf diese Datei.
+# Crosscheck prüft den PR selbst: neue Templates werden gebaut, gegen das Referenzprojekt
+# getestet und erst danach aktiv.
+#
+# "auto" bedeutet: neueste stabile Version, die der Versions-Job gefunden hat.
+# Die tatsächlich verwendeten Werte stehen nach jedem Template-Bau in versions.lock.
+# Die Kommentare nennen den Stand bei Erstellung dieser Datei (2026-09) als Orientierung.
+
+channels:
+  latest:
+    host:
+      proxmox_ve: auto          # Proxmox VE 9.x auf Debian 13 "Trixie"
+    linux:
+      ubuntu: auto              # neueste Ubuntu-Version, auch Nicht-LTS
+      fedora: auto
+      debian: auto
+      session: [x11, wayland]
+    windows:
+      windows_11: auto          # neuestes Feature-Update, Evaluation-ISO oder eigene Lizenz
+    android:
+      api_level: auto           # höchste stabile API-Stufe im SDK
+      system_image: google_apis_playstore
+    apple:
+      macos: auto               # neueste stabile macOS-Version per IPSW
+      xcode: auto
+      ios_simulator_runtime: auto
+    web:
+      playwright: auto          # bringt Chromium, Firefox, WebKit in passenden Versionen mit
+    toolchains:
+      node: current             # aktuelle "Current"-Linie
+      python: auto
+      rust: stable
+      dotnet: auto
+      jdk: auto                 # neueste LTS
+      flutter: stable
+      go: auto
+
+  lts:
+    host:
+      proxmox_ve: auto
+    linux:
+      ubuntu: lts               # Ubuntu 26.04 LTS
+      debian: stable
+      session: [x11, wayland]
+    windows:
+      windows_11: auto
+    android:
+      api_level: auto-minus-1
+    apple:
+      macos: auto-minus-1
+      xcode: auto
+    toolchains:
+      node: lts
+      python: auto-minus-1
+      rust: stable
+      dotnet: lts
+      jdk: lts
+
+  preview:
+    optional: true
+    android:
+      api_level: preview
+    apple:
+      macos: beta
+      xcode: beta
+    windows:
+      windows_11: insider-beta
+    linux:
+      ubuntu: devel

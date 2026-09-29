@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "run_id": "r_9f3k2",
+  "repo": "ProfessorEngineergit/myapp",
+  "pr": 42,
+  "base_sha": "1111111111111111111111111111111111111111",
+  "head_sha": "2222222222222222222222222222222222222222",
+  "level": "smoke",
+  "trigger": "push",
+  "requested_by": "github-app",
+  "status": "failure",
+  "started_at": "2026-09-29T09:12:03Z",
+  "finished_at": "2026-09-29T09:24:41Z",
+  "summary": {
+    "headline": "Fehlgeschlagen: Windows Smoke-Schritt 4, AVX2-Absturz auf kartoffel (Linux)",
+    "counts": { "critical": 1, "high": 1, "medium": 1, "low": 0, "info": 2 }
+  },
+  "platforms": [
+    {
+      "platform": "linux",
+      "variant": "ubuntu-x11",
+      "os_version": "Ubuntu 26.04 LTS",
+      "template_build_id": "linux-ubuntu-20260928-01",
+      "preset": "kartoffel",
+      "calibration": { "target_single_thread_score": 300, "measured_single_thread_score": 311, "reached_percent": 103.7, "reliable": true },
+      "status": "failure",
+      "build": { "ok": true, "duration_s": 212.4, "log": "l_a81" },
+      "crashed": true,
+      "steps": [
+        { "index": 0, "instruction": "Warte, bis das Hauptfenster vollständig geladen ist.", "result": "not_met", "observation": "Kein Fenster erschienen. Prozess nach 1,2 s beendet.", "screenshot_after": "s_101" }
+      ]
+    },
+    {
+      "platform": "linux",
+      "variant": "ubuntu-x11",
+      "os_version": "Ubuntu 26.04 LTS",
+      "preset": "mittel",
+      "status": "success",
+      "build": { "ok": true, "duration_s": 88.0, "log": "l_a82" },
+      "metrics": {
+        "time_to_first_window_ms": 910,
+        "time_to_interactive_ms": 1740,
+        "input_latency_p50_ms": 38,
+        "input_latency_p95_ms": 96,
+        "hangs_over_500ms": 0,
+        "memory_peak_mb": 412,
+        "idle_cpu_percent": 0.8,
+        "network_connections": 1,
+        "ab_delta": { "time_to_interactive_ms": 120, "memory_peak_mb": 14 }
+      },
+      "crashed": false,
+      "video": "v_c11"
+    },
+    {
+      "platform": "windows",
+      "variant": "windows-11",
+      "os_version": "Windows 11",
+      "preset": "mittel",
+      "status": "failure",
+      "build": { "ok": true, "duration_s": 140.2, "log": "l_b12" },
+      "crashed": false,
+      "steps": [
+        { "index": 3, "instruction": "Öffne die Einstellungen über das Zahnrad unten links.", "result": "not_met", "observation": "Das Zahnrad ist ausgegraut, ein Klick hat keine Wirkung.", "screenshot_before": "s_111", "screenshot_after": "s_112", "visual_diff": "d_112" }
+      ],
+      "video": "v_c12",
+      "hold": { "active": false }
+    }
+  ],
+  "findings": [
+    {
+      "id": "f_crash1",
+      "category": "crash",
+      "severity": "critical",
+      "confidence": 1.0,
+      "source": "runtime",
+      "platforms": ["linux"],
+      "presets": ["kartoffel"],
+      "title": "SIGILL beim Start auf CPUs ohne AVX2",
+      "description": "Symbolisierter Stack zeigt den Absturz in einer nativen Abhängigkeit, die mit AVX2 gebaut ist. Auf x86-64-v3 und höher läuft die App.",
+      "evidence": ["l_a81", "s_101"],
+      "new_since_base": true
+    },
+    {
+      "id": "f_net1",
+      "category": "network",
+      "severity": "high",
+      "confidence": 1.0,
+      "source": "runtime",
+      "platforms": ["linux", "windows"],
+      "title": "Neue Verbindung beim Start zu einem nicht erlaubten Host",
+      "description": "Verbindungsversuch vom App-Prozess zu telemetry.example.net:443 beim Start, vom Proxy verworfen. In der Basis nicht vorhanden.",
+      "new_since_base": true
+    },
+    {
+      "id": "f_step4",
+      "category": "smoke-step",
+      "severity": "medium",
+      "confidence": 0.9,
+      "source": "vision-model",
+      "platforms": ["windows"],
+      "title": "Einstellungen lassen sich nicht öffnen",
+      "evidence": ["s_111", "s_112", "d_112"],
+      "new_since_base": true
+    },
+    {
+      "id": "f_dep1",
+      "category": "dependency",
+      "severity": "info",
+      "source": "scanner",
+      "title": "Neue Abhängigkeit mit Install-Script",
+      "description": "Paket führt beim Installieren ein postinstall-Script aus. Keine Netz- oder Dateizugriffe außerhalb von node_modules beobachtet.",
+      "file": "package-lock.json",
+      "new_since_base": true
+    },
+    {
+      "id": "f_size1",
+      "category": "binary-size",
+      "severity": "info",
+      "source": "controller",
+      "title": "Installer 6,1 % größer als auf main",
+      "new_since_base": true
+    }
+  ],
+  "provenance": {
+    "config_sha": "1111111111111111111111111111111111111111",
+    "config_source": "base",
+    "controller_version": "0.1.0",
+    "channel": "latest",
+    "prompt_version": "vision-3",
+    "models": { "vision": "claude-sonnet-5-5" }
+  }
+}

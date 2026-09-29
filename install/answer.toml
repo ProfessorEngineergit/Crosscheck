@@ -1,0 +1,35 @@
+# Antwortdatei für den automatischen Proxmox-VE-Installer.
+# Wird von `proxmox-auto-install-assistant prepare-iso --fetch-from iso` in die ISO eingebettet.
+# Referenz: https://pve.proxmox.com/wiki/Automated_Installation
+#
+# ACHTUNG: Diese Datei installiert ohne Rückfrage und LÖSCHT die gewählte Platte.
+# Sie ist für einen dedizierten Crosscheck-Rechner gedacht.
+
+[global]
+keyboard = "de"
+country = "de"
+fqdn = "crosscheck.local"
+mailto = "root@localhost"
+timezone = "Europe/Berlin"
+# Platzhalter-Hash. Der First-Boot-Schritt setzt ein Zufallspasswort und zeigt es
+# ausschließlich im Einrichtungsassistenten an (hinter dem Einmal-Token vom Bildschirm).
+root-password-hashed = "$y$j9T$REPLACED.AT.ISO.BUILD.TIME"
+reboot-on-error = false
+
+[network]
+source = "from-dhcp"
+
+[disk-setup]
+# Standard: ext4 mit LVM-thin auf genau einer Platte, damit Linked Clones schnell sind.
+# `crosscheck build-iso --disk-serial <serial>` ersetzt den Filter durch eine feste Seriennummer.
+# `crosscheck build-iso --zfs-mirror` wählt ZFS RAID1 über zwei gleich große Platten.
+filesystem = "ext4"
+filter.ID_TYPE = "disk"
+filter-match = "any"
+# Bei ext4 muss der Filter genau eine Platte treffen. Hat der Rechner mehrere Platten,
+# bricht der Installer ab, statt zu raten. Das ist gewollt.
+
+[first-boot]
+# crosscheck-firstboot: Updates, Netz, Controller-LXC, Proxy, Template-Bau, QR-Code.
+source = "from-iso"
+ordering = "fully-up"

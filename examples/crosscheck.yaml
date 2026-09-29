@@ -1,0 +1,106 @@
+# crosscheck.yaml im zu prüfenden Repo.
+# Wird IMMER vom Basis-Branch gelesen. Änderungen in einem PR wirken erst nach dem Merge
+# und erzeugen bis dahin das Finding "config-change".
+#
+# Minimal reicht: nichts. Ohne Datei erkennt Crosscheck den Projekttyp selbst.
+# Diese Datei zeigt fast alle Optionen für eine Electron-App.
+
+version: 1
+channel: latest            # latest | lts | pinned | preview
+
+project:
+  profile: electron        # auto | electron | tauri | flutter | qt | gtk | dotnet | avalonia | compose | react-native | web
+  build: npm ci && npm run build
+  launch:
+    linux:   ./dist/linux-unpacked/myapp
+    windows: .\dist\win-unpacked\MyApp.exe
+    macos:   open -W dist/mac-arm64/MyApp.app
+  window_title: "^MyApp"   # Regex, woran das Hauptfenster erkannt wird
+  packages:                # zusätzlich zu testende Installationsformate
+    linux: [appimage, deb]
+    windows: [nsis]
+
+platforms:
+  linux:   { required: true }
+  windows: { required: true }
+  web:     { required: false, url_after_build: "http://localhost:5173" }
+  android: { required: false }
+  macos:   { required: false }   # nur wenn ein Apple-Host angebunden ist
+
+matrix:
+  default: [mittel]                                  # bei jedem Push
+  label_run: [schul-pc, mittel]                      # Label crosscheck:run
+  label_matrix: [kartoffel, schul-pc, mittel, gut, unfassbar]
+  nightly:
+    presets: [kartoffel, mittel, unfassbar]
+    modifiers: [offline, hitze, dunkel, rtl, pseudo-l10n]
+
+trust:
+  # Wer bekommt automatisch Stufe 1? Andere nur mit Label crosscheck:run.
+  auto_smoke_for: [OWNER, MEMBER, COLLABORATOR]
+  slash_commands_for: [OWNER, MEMBER, COLLABORATOR]
+
+egress:
+  mode: deny               # deny | observe  (observe: erlauben, aber alles melden)
+  allow:
+    - registry.npmjs.org   # nur über den Paket-Proxy, nur beim Build
+  allow_at_runtime: []     # die App selbst darf nirgendwohin
+
+smoke:
+  max_steps: 60
+  max_minutes: 10
+  steps:
+    - do: "Warte, bis das Hauptfenster vollständig geladen ist."
+      expect: "Eine Seitenleiste links und ein leerer Editor rechts sind sichtbar."
+      required: true
+    - do: "Öffne das Menü Datei und wähle Neu."
+      expect: "Ein neuer Tab mit dem Titel 'Unbenannt' erscheint."
+      required: true
+    - do: "Tippe 'Hallo Crosscheck' in den Editor."
+      expect: "Der Text ist im Editor sichtbar."
+      required: true
+    - do: "Öffne die Einstellungen über das Zahnrad unten links."
+      expect: "Ein Einstellungsdialog mit mindestens zwei Tabs öffnet sich, nichts ist abgeschnitten."
+      required: false
+    - do: "Schließe die App über das Menü."
+      expect: "Ein Dialog fragt, ob die Änderungen gespeichert werden sollen."
+      required: false
+
+checks:
+  secrets: true
+  sast: { semgrep: [p/default, p/typescript, p/electron], codeql: false }
+  dependencies: true
+  install_scripts: true
+  sbom: true
+  license_policy: { deny: [AGPL-3.0-only, SSPL-1.0] }
+  binary_size: { warn_percent: 10 }
+  visual_regression: { threshold_percent: 0.5 }
+  accessibility: true
+  permissions_diff: true
+  canary_secrets: true
+  upgrade_from_last_release: true
+
+performance:
+  ab_against_base: true
+  repetitions: 3
+  budgets:
+    kartoffel: { time_to_interactive_ms: 8000, input_latency_p95_ms: 400, memory_peak_mb: 1200 }
+    mittel:    { time_to_interactive_ms: 2500, input_latency_p95_ms: 120 }
+  regression: { max_slowdown_percent: 20, fail_on_regression: false }
+
+deep:
+  # Stufe 2 läuft NIE automatisch. Nur Label crosscheck:deep oder Slash-Kommando.
+  monthly_budget_eur: 15
+  confirm_above_eur: 2
+  models:
+    vision: claude-sonnet-5-5
+    review: claude-opus-5-5
+  explorative_steps: 40
+
+notify:
+  ntfy: { topic: "crosscheck-myapp", only_on_change: true }
+  quiet_hours: { days: [mon, tue, wed, thu, fri], from: "08:00", to: "13:15", tz: Europe/Berlin, except: [critical] }
+
+hold:
+  default_minutes: 30
+  max_minutes: 120
