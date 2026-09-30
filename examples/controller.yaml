@@ -1,0 +1,51 @@
+# /etc/crosscheck/controller.yaml, written by `crosscheck init`. Shown here with the most useful options.
+# Secrets live in separate files (mode 0600); this file only references them.
+
+version: 1
+data_dir: /var/lib/crosscheck
+
+github:
+  auth: app                                   # app | token
+  app_id: 123456
+  private_key_file: /etc/crosscheck/secrets/github-app.pem
+  webhook_secret_file: /etc/crosscheck/secrets/webhook-secret   # optional; polling works without it
+  poll_interval_s: 60
+  repos: [me/app, me/other-app]
+
+runner:
+  transport: unix                             # unix (same machine) | ssh (two devices)
+  unix_socket: /run/crosscheck/hostd.sock
+  # transport: ssh
+  # ssh: { host: runner.lan, user: root, key_file: /etc/crosscheck/secrets/runner_ed25519,
+  #        known_hosts_file: /etc/crosscheck/runner_known_hosts }
+
+mcp:
+  host: 127.0.0.1
+  port: 8750
+  public_url: https://crosscheck.example.ts.net   # for cloud agents, webhooks, deep reviews
+  allowed_hosts: [crosscheck.example.ts.net]
+
+agents:
+  anthropic_key_file: /etc/crosscheck/secrets/anthropic.key
+  openai_key_file: /etc/crosscheck/secrets/openai.key            # only for Codex reviews
+  operator: { adapter: claude, model: claude-opus-5-5, effort: low, max_steps: 60 }
+  security: { adapter: claude-code, second_opinion: codex }
+  vulnerability: { adapter: codex }
+
+policy:
+  topology: two-devices                       # single-machine | two-devices (shown in the safety light)
+  classes:
+    trusted: { users: [a-friend, a-colleague] }
+    blocked: { users: [] }
+  defaults:
+    static: { mode: all }
+    smoke: { mode: classes, classes: [maintainer, trusted], others: approved }
+    deep: { mode: manual }
+  repos:
+    me/app:
+      smoke: { mode: all }                    # public project: every PR, isolation is the same
+  limits:
+    stranger: { platforms: 1, presets: 1, max_minutes: 20, parallel: 1, per_day: 5, hold: false,
+                gpu: [], egress_observe: false, cloud_burst: false, nested_virt: false }
+  deep: { allowed_requesters: [maintainer], monthly_budget_usd: 20, confirm_above_usd: 2 }
+  retention: { reports_days: 90, screenshots_days: 30, logs_days: 14, build_artifacts_days: 0 }

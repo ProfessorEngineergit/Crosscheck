@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "run_id": "r_3q4yzgqqu0",
+  "repo": "demo/fake-app",
+  "pr": 1,
+  "base_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "head_sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "stage": "smoke",
+  "trigger": "push",
+  "trust_class": "stranger",
+  "status": "failure",
+  "started_at": "2026-09-29T20:08:30Z",
+  "platforms": [
+    {
+      "platform": "linux",
+      "preset": "mainstream",
+      "status": "success",
+      "performance_basis": "measured",
+      "modifiers": [],
+      "calibration": {
+        "target_score": 1000,
+        "measured_score": 1000,
+        "reached_percent": 100.0,
+        "reliable": true
+      },
+      "steps": [
+        {
+          "index": 0,
+          "instruction": "Open the File menu.",
+          "result": "met",
+          "observation": "screen changed 1.5% after scripted actions",
+          "duration_ms": 599,
+          "screenshot_after": "s_lgu7jzzrb6bq",
+          "screenshot_before": "s_pxwp82at0u40"
+        },
+        {
+          "index": 1,
+          "instruction": "Choose Settings.",
+          "result": "met",
+          "observation": "screen changed 3.2% after scripted actions",
+          "duration_ms": 599,
+          "screenshot_after": "s_2syzzhkzampg",
+          "screenshot_before": "s_a61p7fd0hsu1"
+        },
+        {
+          "index": 2,
+          "instruction": "Close the dialog with Escape.",
+          "result": "met",
+          "observation": "screen changed 1.7% after scripted actions",
+          "duration_ms": 602,
+          "screenshot_after": "s_lx50pgu4e76o",
+          "screenshot_before": "s_o2c12zwpcaq8"
+        }
+      ],
+      "build": {
+        "ok": true,
+        "log": "l_d1poz91dn99v"
+      },
+      "metrics": {
+        "time_to_first_window_ms": 731,
+        "time_to_interactive_ms": 736,
+        "input_latency_p50_ms": 38,
+        "input_latency_p95_ms": 38,
+        "hangs_over_500ms": 0,
+        "vm_cpu_seconds": 1.5,
+        "memory_peak_mb": 900,
+        "network_connections": 3
+      },
+      "metric_sources": {
+        "time_to_first_window_ms": "host",
+        "time_to_interactive_ms": "host",
+        "input_latency_p50_ms": "host",
+        "input_latency_p95_ms": "host",
+        "hangs_over_500ms": "host",
+        "vm_cpu_seconds": "host",
+        "memory_peak_mb": "host",
+        "network_connections": "host"
+      },
+      "crashed": false
+    }
+  ],
+  "findings": [
+    {
+      "id": "f_2fkuth1dgv",
+      "category": "infrastructure",
+      "severity": "info",
+      "source": "controller",
+      "title": "Static scanners skipped: no analysis image on the runner host",
+      "description": "Run 'crosscheck images build analysis' to enable secret, SAST and dependency scanning."
+    },
+    {
+      "id": "f_7p5rwhoq7e",
+      "category": "network",
+      "severity": "high",
+      "source": "runtime",
+      "title": "Blocked outbound connection attempts to 1 host(s)",
+      "description": "Hosts: evil.example.net",
+      "platforms": [
+        "linux"
+      ],
+      "presets": [
+        "mainstream"
+      ]
+    },
+    {
+      "id": "f_x7fm4m5vh7",
+      "category": "honeypot",
+      "severity": "high",
+      "source": "runtime",
+      "title": "The code tried to reach a cloud metadata endpoint",
+      "platforms": [
+        "linux"
+      ],
+      "presets": [
+        "mainstream"
+      ]
+    }
+  ],
+  "deletion": {
+    "verified": true,
+    "completed_at": "2026-09-29T20:08:35Z",
+    "leftovers": 0,
+    "objects": [
+      {
+        "kind": "vm",
+        "ref": "v1251000",
+        "method": "destroy",
+        "deleted_at": "2026-09-29T20:08:35Z"
+      },
+      {
+        "kind": "disk-overlay",
+        "ref": "v1251000",
+        "method": "crypto-shred",
+        "deleted_at": "2026-09-29T20:08:35Z"
+      },
+      {
+        "kind": "run-dir",
+        "ref": "v1251000",
+        "method": "unlink",
+        "deleted_at": "2026-09-29T20:08:35Z"
+      }
+    ]
+  },
+  "provenance": {
+    "config_sha": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "config_source": "base",
+    "controller_version": "0.1.0",
+    "backend": "fake",
+    "topology": "single-machine",
+    "channel": "latest",
+    "agents": {
+      "smoke": "none"
+    }
+  },
+  "policy_mode": "all",
+  "finished_at": "2026-09-29T20:08:35Z",
+  "summary": {
+    "headline": "failure; 2 critical/high finding(s)",
+    "counts": {
+      "critical": 0,
+      "high": 2,
+      "medium": 0,
+      "low": 0,
+      "info": 1
+    }
+  }
+}

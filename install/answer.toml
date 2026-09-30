@@ -1,0 +1,34 @@
+# Answer file for the unattended Proxmox VE installer, used by the zero-touch runner ISO.
+# Embedded with: proxmox-auto-install-assistant prepare-iso --fetch-from iso --answer-file answer.toml
+# Reference: https://pve.proxmox.com/wiki/Automated_Installation
+#
+# WARNING: this installs without asking and ERASES the selected disk.
+# It is meant for a dedicated Crosscheck runner machine.
+
+[global]
+keyboard = "en-us"
+country = "us"
+fqdn = "crosscheck-runner.local"
+mailto = "root@localhost"
+timezone = "UTC"
+# Placeholder. The ISO build replaces it with a random password that is only shown once
+# after pairing with the controller.
+root-password-hashed = "$y$j9T$REPLACED.AT.ISO.BUILD.TIME"
+reboot-on-error = false
+
+[network]
+source = "from-dhcp"
+
+[disk-setup]
+# ext4 with LVM-thin on exactly one disk, so copy-on-write clones are fast.
+# `crosscheck images build-iso --disk-serial <serial>` replaces the filter with a fixed serial.
+filesystem = "ext4"
+filter.ID_TYPE = "disk"
+filter-match = "any"
+# With ext4 the filter must match exactly one disk. On a machine with several disks the
+# installer stops instead of guessing. That is intended.
+
+[first-boot]
+# crosscheck first boot: updates, KSM off, hostd, pairing code on screen.
+source = "from-iso"
+ordering = "fully-up"

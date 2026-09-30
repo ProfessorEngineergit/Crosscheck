@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "crosscheck": {
+      "type": "http",
+      "url": "${CROSSCHECK_URL}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${CROSSCHECK_TOKEN}"
+      }
+    }
+  }
+}

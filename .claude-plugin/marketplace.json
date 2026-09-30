@@ -1,0 +1,18 @@
+{
+  "name": "crosscheck",
+  "owner": {
+    "name": "Crosscheck contributors"
+  },
+  "metadata": {
+    "description": "Check pull requests on every platform and hardware class in disposable VMs, and read the results from Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "crosscheck",
+      "source": "./plugins/crosscheck",
+      "description": "MCP connection, skill and /crosscheck commands for a self-hosted Crosscheck controller.",
+      "version": "0.1.0",
+      "license": "GPL-3.0-only"
+    }
+  ]
+}

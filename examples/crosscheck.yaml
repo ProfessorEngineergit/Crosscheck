@@ -1,0 +1,56 @@
+# crosscheck.yaml in the repository being checked.
+# Always read from the PR's BASE commit. Changes in a PR take effect only after merge and produce a
+# "config-change" finding until then. Without this file Crosscheck detects the project type itself.
+
+version: 1
+channel: latest                 # latest | lts
+
+project:
+  profile: electron             # auto | electron | tauri | flutter | node | rust | python | ...
+  build: npm ci && npm run build
+  launch:
+    linux: npx electron .
+  window_title: "^MyApp"
+
+platforms:
+  linux: { required: true }
+
+matrix:
+  default: [mainstream]                               # every push
+  label_run: [office, mainstream]                     # label crosscheck:run, or a maintainer request
+  label_matrix: [potato, office, mainstream, highend, insane]
+
+trust:
+  # Can only make the admin policy stricter. Example: bots never start a VM automatically.
+  smoke:
+    bot: manual
+
+egress:
+  allow:                                              # added to the profile's registries
+    - api.example.com
+
+smoke:
+  max_steps: 40
+  max_minutes: 10
+  steps:
+    - do: "Wait until the main window has fully loaded."
+      expect: "A sidebar on the left and an empty editor on the right are visible."
+      required: true
+    - do: "Open the File menu and choose New."
+      expect: "A new tab titled 'Untitled' appears."
+      required: true
+    - do: "Type 'Hello Crosscheck' into the editor."
+      expect: "The text is visible in the editor."
+      required: true
+    - do: "Open the settings with the gear icon at the bottom left."
+      expect: "A settings dialog with at least two tabs opens and nothing is cut off."
+      required: false
+    # A step can also be scripted, which needs no model:
+    - do: "Press Escape to close the dialog."
+      actions: [{ action: key, keys: Escape }]
+      expect_change: true
+
+performance:
+  budgets:
+    potato:     { time_to_interactive_ms: 8000, input_latency_p95_ms: 400 }
+    mainstream: { time_to_interactive_ms: 2500, input_latency_p95_ms: 120 }
