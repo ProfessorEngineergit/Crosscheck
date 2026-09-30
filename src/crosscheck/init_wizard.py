@@ -79,8 +79,22 @@ def detect() -> dict:
 
 
 # ---------------------------------------------------------------------- GitHub App manifest flow
+def normalize_public_url(raw: str | None) -> str | None:
+    """Turn what a human typed into a URL GitHub accepts as a webhook target, or None (poll instead)."""
+    raw = (raw or "").strip().strip("'\"<>").rstrip("/")
+    if not raw:
+        return None
+    if "://" not in raw:
+        raw = "https://" + raw
+    parts = urllib.parse.urlsplit(raw)
+    host = parts.hostname or ""
+    if parts.scheme not in ("http", "https") or "." not in host or any(c.isspace() for c in raw):
+        return None
+    return urllib.parse.urlunsplit((parts.scheme, parts.netloc, parts.path.rstrip("/"), "", ""))
+
+
 def app_manifest(name: str, redirect_url: str, public_url: str | None) -> dict:
-    manifest = {
+    manifest: dict = {
         "name": name,
         "url": "https://github.com/ProfessorEngineergit/Crosscheck",
         "redirect_url": redirect_url,
@@ -91,11 +105,14 @@ def app_manifest(name: str, redirect_url: str, public_url: str | None) -> dict:
             "checks": "write",
             "metadata": "read",
             "statuses": "write",
+            # GitHub only accepts the issue_comment event ("/crosscheck run") together with this.
+            "issues": "read",
         },
-        "default_events": ["pull_request", "pull_request_review", "issue_comment"],
     }
-    if public_url:
-        manifest["hook_attributes"] = {"url": public_url.rstrip("/") + "/webhook", "active": True}
+    hook = normalize_public_url(public_url)
+    if hook:
+        manifest["hook_attributes"] = {"url": hook + "/webhook", "active": True}
+        manifest["default_events"] = ["pull_request", "pull_request_review", "issue_comment"]
     return manifest
 
 
@@ -422,13 +439,15 @@ def interactive(a: Answers, env: dict) -> Answers:
         )
         or None
     )
-    a.public_url = (
-        ask(
-            "Public HTTPS URL for cloud agents and webhooks, e.g. via Tailscale Funnel "
-            "(Enter to skip: LAN only, like it's 1999)"
-        )
-        or None
+    typed = ask(
+        "Public HTTPS URL for cloud agents and webhooks, e.g. via Tailscale Funnel "
+        "(Enter to skip: LAN only, like it's 1999)"
     )
+    a.public_url = normalize_public_url(typed)
+    if typed and not a.public_url:
+        print(
+            "That does not look like a URL (needs a hostname like crosscheck.example.ts.net). Skipping: polling it is."
+        )
     if a.github_auth == "app":
         a.github_app = run_manifest_flow(a.public_url)
     a.smoke_mode = choose(

@@ -4,7 +4,7 @@ import yaml
 
 from crosscheck import agent_setup as ag
 from crosscheck.images.build import FINAL_NETPLAN, user_data
-from crosscheck.init_wizard import Answers, app_manifest, systemd_units, write_all
+from crosscheck.init_wizard import Answers, app_manifest, normalize_public_url, systemd_units, write_all
 from crosscheck.redact import CANARY_MARKER
 
 
@@ -63,6 +63,22 @@ def test_app_manifest_minimal_permissions():
     assert "hook_attributes" not in m
     assert m["default_permissions"]["contents"] == "read"
     assert "administration" not in m["default_permissions"]
+    assert "default_events" not in m  # events without a hook are rejected by GitHub
+
+
+def test_app_manifest_with_webhook():
+    m = app_manifest("x", "http://h/cb", " crosscheck.example.ts.net/ ")
+    assert m["hook_attributes"]["url"] == "https://crosscheck.example.ts.net/webhook"
+    assert "issue_comment" in m["default_events"]
+    assert m["default_permissions"]["issues"] == "read"  # required by issue_comment
+
+
+def test_normalize_public_url():
+    assert normalize_public_url("") is None
+    assert normalize_public_url("nonsense") is None
+    assert normalize_public_url("two words.example.com") is None
+    assert normalize_public_url("https://a.example.com/x/") == "https://a.example.com/x"
+    assert normalize_public_url("a.example.com:8443") == "https://a.example.com:8443"
 
 
 def test_image_user_data():
