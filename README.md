@@ -1,6 +1,6 @@
 # Crosscheck
 
-**Stay present for your pull requests while you're somewhere else, and keep control.**
+**Self-hosted pull-request checks with disposable VMs and agent-assisted app testing.**
 
 You're in a lecture, at work, on a train, or just busy. A pull request comes in. Crosscheck
 builds it in disposable, isolated VMs on your own hardware, clicks through the app with a
@@ -10,7 +10,7 @@ session through MCP. Nothing is ever merged for you.
 
 - **Every PR is treated as hostile**, including your own. Code runs only in throwaway KVM VMs
   with no credentials, no DNS, no route to your network, and an allow-list proxy as the only way
-  out. Everything is destroyed afterwards, and each report says what was deleted.
+  out. Cleanup is designed to destroy per-run resources afterwards; each report includes deletion receipts. These controls do not constitute an independent isolation audit.
 - **Weak to insane hardware.** Presets from `potato` to `insane` throttle cores, CPU speed and
   generation, memory, disk, network and screen. For hardware you don't own, Crosscheck simulates
   the traits, extrapolates from throttle sweeps, amplifies races, or rents the real thing per run,
@@ -21,7 +21,7 @@ session through MCP. Nothing is ever merged for you.
 - **Results without losing context.** Your agent asks for a ten-line summary first and fetches
   screenshots or logs by ID only when needed.
 
-## Try it in one minute (no GitHub, no KVM, no keys)
+## Try the simulated demo (no GitHub, no KVM, no keys)
 
 ```bash
 uvx --from git+https://github.com/ProfessorEngineergit/Crosscheck crosscheck demo
@@ -105,7 +105,7 @@ Only users with write access can trigger runs by comment or label.
 
 ## Status
 
-Working and tested: policy engine, GitHub integration (App or token, polling or webhooks),
+The repository implements the following components, with tests described below: policy engine, GitHub integration (App or token, polling or webhooks),
 plain-QEMU and Proxmox backends with per-run network namespaces and encrypted overlays, egress
 proxy, hardware presets and throttling, Claude computer-use operator, scripted operator, report
 builder and schema, MCP bridge with scoped tokens, key proxy, deletion receipts, installer, init
@@ -149,3 +149,7 @@ uv venv && uv pip install -e '.[dev]'
 ## Licence
 
 GPL-3.0, see [LICENSE](LICENSE).
+
+## Development and AI assistance
+
+The default-branch history includes contributions explicitly attributed to Claude / Codex ([example](https://github.com/ProfessorEngineergit/Crosscheck/commit/2d7948320464e970c41fe3a2d13ca731b31d42fc)). This documents AI involvement in those contributions; it does not establish the origin of every line or independent validation. Existing author, co-author and session records are retained.
