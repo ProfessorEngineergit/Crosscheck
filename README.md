@@ -150,6 +150,6 @@ uv venv && uv pip install -e '.[dev]'
 
 GPL-3.0, see [LICENSE](LICENSE).
 
-## Development and AI assistance
+## AI assistance
 
-The default-branch history includes contributions explicitly attributed to Claude / Codex ([example](https://github.com/ProfessorEngineergit/Crosscheck/commit/2d7948320464e970c41fe3a2d13ca731b31d42fc)). This documents AI involvement in those contributions; it does not establish the origin of every line or independent validation. Existing author, co-author and session records are retained.
+Some code contributions are explicitly attributed to AI tools: [generated with Claude Code](https://github.com/ProfessorEngineergit/Crosscheck/commit/b02e9fd0cf0a6407b7e8efdee39c70903c13f46e), [Codex](https://github.com/ProfessorEngineergit/Crosscheck/commit/5379285eb8815332501bc86f9c71e10986b094f1). This applies to those contributions, not every file.
