@@ -21,7 +21,7 @@ dependencies = [
   "anthropic>=0.40",
   "pycdlib>=1.14",
   "segno>=1.6",
-  "pillow>=10.0",
+  "pillow>=13.0.0",
   "anyio>=4.0",
   "python-multipart>=0.0.9",
 ]
